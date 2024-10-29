@@ -1,0 +1,133 @@
+#include "imports/stdlib.fc";
+#include "imports/constants.fc";
+#include "imports/utils.fc";
+
+global int storage::init?;
+global int storage::start_time;
+global int storage::end_time;
+global int storage::snapshot_item_index;
+global int storage::snapshot_tvl;
+global int storage::total_rewards;
+global int storage::farming_speed;
+global slice storage::pool_address;
+global slice storage::boost_wallet_address;
+
+global cell storage::item_code;
+global cell storage::boost_helper_code;
+
+
+() load_data() impure inline {
+    slice ds = get_data().begin_parse();
+    storage::init? = ds~load_uint(1);
+    storage::start_time = ds~load_uint(32);
+    storage::end_time = ds~load_uint(32);
+    storage::snapshot_item_index = ds~load_uint(32);
+    storage::snapshot_tvl = ds~load_uint(32);
+    storage::total_rewards = ds~load_coins();
+    storage::farming_speed = ds~load_coins();
+
+    storage::pool_address = ds~load_msg_addr();
+    storage::boost_wallet_address = ds~load_msg_addr();
+    storage::item_code = ds~load_ref();
+    storage::boost_helper_code = ds~load_ref();
+}
+
+() save_data() impure inline {
+    set_data(
+        begin_cell()
+            .store_uint(storage::init?, 1)
+            .store_uint(storage::start_time, 32)
+            .store_uint(storage::end_time, 32)
+            .store_uint(storage::snapshot_item_index, 32)
+            .store_uint(storage::snapshot_tvl, 32)
+            .store_coins(storage::total_rewards)
+            .store_coins(storage::farming_speed)
+            .store_slice(storage::pool_address)
+            .store_slice(storage::boost_wallet_address)
+            .store_ref(storage::item_code)
+            .store_ref(storage::boost_helper_code)
+        .end_cell()
+    );
+}
+
+() recv_internal(int my_balance, int msg_value, cell in_msg_full, slice in_msg_body) impure {
+    if (in_msg_body.slice_empty?()) { ;; ignore empty messages
+        return ();
+    }
+    slice cs = in_msg_full.begin_parse();
+    int flags = cs~load_uint(4);
+    
+    if (flags & 1) { ;; ignore all bounced messages
+        return ();
+    }
+    slice sender_address = cs~load_msg_addr();
+
+    load_data();
+
+    int op = in_msg_body~load_uint(32);
+    int query_id = in_msg_body~load_uint(64);
+
+    if (op == op::set_boost_wallet_address) {
+        throw_unless(exc::incorrect_sender, equal_slices(storage::pool_address, sender_address));
+        throw_if(666, storage::init?);
+        storage::boost_wallet_address = in_msg_body~load_msg_addr();
+        save_data();
+        return ();
+    }
+
+    if (op == op::transfer_notification) {
+        (int jetton_amount, slice from_user) = (in_msg_body~load_coins(), in_msg_body~load_msg_addr());
+        ifnot (equal_slices(sender_address, storage::boost_wallet_address)) {
+            send_jettons(query_id, jetton_amount, from_user, from_user, sender_address, 0, mode::carry_remaining_gas, 1, null());  
+            return ();
+        }
+        if (in_msg_body.slice_refs() > 0) {
+            slice ref_cs = in_msg_body~load_ref().begin_parse();
+            int transferred_op = ref_cs~load_uint(32);
+            if (transferred_op == op::top_up_jetton_balance) {
+                storage::total_rewards += jetton_amount; 
+                storage::init? = 1;
+                save_data();
+                return ();
+            }
+            throw(exc::unsupported_op);
+        } 
+        return ();
+    }
+
+    if (op == op::claim_boost_rewards) {
+        int item_index = in_msg_body~load_uint(32);
+        slice expected_item_address = calculate_nft_address_by_index(my_address(), storage::item_code, item_index);
+        throw_unless(exc::incorrect_sender, equal_slices(expected_item_address, sender_address));  ;; check that NFT belongs to this collection
+
+        slice from_user = in_msg_body~load_msg_addr();
+        int user_locked_value = in_msg_body~load_coins();
+
+        ;; TODO: send msg to boost helper related to this item
+
+        save_data();
+        return ();
+    }
+
+    if (op == op::claim_boost_proved) {
+        ;; TODO: check that this message is from boost helper and process it
+
+        save_data();
+        return ();
+    }
+
+    throw(exc::unsupported_op);
+}
+
+(int, int, int, int, int, slice, slice) get_boost_data() method_id {
+    load_data();
+    return (
+        storage::init?,
+        storage::start_time,
+        storage::end_time,
+        storage::farming_speed,
+        storage::total_rewards,
+        storage::pool_address,
+        storage::boost_wallet_address
+    );
+}
