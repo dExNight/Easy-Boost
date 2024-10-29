@@ -1,4 +1,4 @@
-# Staking System with Boost Mechanisms (TON Blockchain)
+# Staking System with Boost Mechanisms
 
 ## Overview
 `Easy Boost` is extension for JVault staking smart contract that allows users to boost their rewards temporarily by participating in "boost" events. Boosts offer additional token rewards for a limited period, encouraging users to stake tokens for a long time
