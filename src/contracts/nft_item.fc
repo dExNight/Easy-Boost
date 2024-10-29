@@ -12,7 +12,7 @@ global slice storage::owner_address;           ;; address of the NFT owner (MsgA
 
 global int storage::start_time;                ;; staking start timestamp (uint32)
 global int storage::unlock_time;               ;; jettons unlock timestamp (uint32) 
-;; TODO: create withdrawed_at timestamp
+global int storage::withdrawed_at;             ;; timestamp of withdrawal (uint32) 
 
 global int storage::locked_value;              ;; amount of locked coins (Coins)
 global int storage::claimed_rewards;           ;; claimed rewards (Coins)
@@ -35,6 +35,7 @@ global int storage::distributed_rewards;       ;; rewards that were distributed 
 
         storage::start_time = ds~load_uint(32);
         storage::unlock_time = ds~load_uint(32);
+        storage::withdrawed_at = ds~load_uint(32);
 
         storage::locked_value = ds~load_coins();
         storage::claimed_rewards = ds~load_coins();
@@ -56,6 +57,7 @@ global int storage::distributed_rewards;       ;; rewards that were distributed 
             .store_slice(storage::owner_address)
             .store_uint(storage::start_time, 32)
             .store_uint(storage::unlock_time, 32)
+            .store_uint(storage::withdrawed_at, 32)
             .store_coins(storage::locked_value)
             .store_coins(storage::claimed_rewards)
             .store_uint(storage::is_transferrable, 1)
@@ -131,6 +133,7 @@ global int storage::distributed_rewards;       ;; rewards that were distributed 
         storage::start_time = in_msg_body~load_uint(32);
         storage::unlock_time = in_msg_body~load_uint(32);
         storage::locked_value = in_msg_body~load_coins();
+        storage::withdrawed_at = 0;
         storage::claimed_rewards = 0;
         storage::is_transferrable = in_msg_body~load_uint(1);
         storage::withdrawal_allowed = in_msg_body~load_uint(1);
@@ -166,6 +169,7 @@ global int storage::distributed_rewards;       ;; rewards that were distributed 
         if (op == op::withdraw_nft) {
             throw_unless(exc::out_of_gas, msg_value >= gas::withdraw_nft);
             throw_unless(exc::not_unlocked_yet, now() >= storage::unlock_time);
+            storage::withdrawed_at = now();
         }
         else {
             throw_unless(exc::out_of_gas, msg_value >= gas::claim_nft);
@@ -313,9 +317,9 @@ global int storage::distributed_rewards;       ;; rewards that were distributed 
     return (storage::init?, storage::collection_index, storage::collection_address, storage::owner_address, begin_cell().end_cell());
 }
 
-(int, int, slice, slice, int, int, int, int, int, int, int) get_storage_data() method_id {
+(int, int, slice, slice, int, int, int, int, int, int, int, int) get_storage_data() method_id {
     load_data();
     return (storage::init?, storage::collection_index, storage::collection_address, storage::owner_address,
-        storage::locked_value, storage::start_time, storage::unlock_time, storage::claimed_rewards,
+        storage::locked_value, storage::start_time, storage::unlock_time, storage::withdrawed_at, storage::claimed_rewards,
         storage::is_transferrable, storage::is_active, storage::distributed_rewards);
 }
