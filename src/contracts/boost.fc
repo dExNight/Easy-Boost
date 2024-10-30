@@ -104,21 +104,54 @@ global cell storage::boost_helper_code;
 
     if (op == op::claim_boost_rewards) {
         int item_index = in_msg_body~load_uint(32);
-        slice expected_item_address = calculate_nft_address_by_index(my_address(), storage::item_code, item_index);
-        throw_unless(exc::incorrect_sender, equal_slices(expected_item_address, sender_address));  ;; check that NFT belongs to this collection
+        slice expected_item_address = calculate_nft_address_by_index(storage::pool_address, storage::item_code, item_index);
+        throw_unless(exc::incorrect_sender, equal_slices(expected_item_address, sender_address));  ;; check that NFT belongs to pool
+        throw_unless(exc::boost_is_not_finished, now() >= storage::end_time);  ;; check that boost is finished
 
         slice from_user = in_msg_body~load_msg_addr();
         int user_locked_value = in_msg_body~load_coins();
 
-        ;; TODO: send msg to boost helper related to this item
+        ;; send msg to boost helper related to this item
+        cell state_init = calculate_boost_helper_state_init(my_address(), sender_address, storage::boost_helper_code);
+        slice helper_address = calculate_boost_helper_address(state_init);
 
+        cell msg_body = begin_cell()
+                .store_uint(op::claim_boost_rewards, 32)
+                .store_uint(query_id, 64)
+                .store_slice(sender_address)
+                .store_slice(from_user)
+                .store_coins(user_locked_value)
+            .end_cell();
+
+        builder msg = begin_cell()
+                        .store_uint(0x18, 6)
+                        .store_slice(helper_address)
+                        .store_coins(0)
+                        .store_uint(4 + 2 + 1, 1 + 4 + 4 + 64 + 32 + 1 + 1 + 1)
+                        .store_ref(state_init)
+                        .store_ref(msg_body);
+
+        send_raw_message(msg.end_cell(), mode::carry_remaining_gas);
         save_data();
         return ();
     }
 
-    if (op == op::claim_boost_proved) {
-        ;; TODO: check that this message is from boost helper and process it
+    if (op == op::claim_boost_approve) {
+        ;; check that this message is from boost helper and process it
+        slice nft_address = in_msg_body~load_msg_addr();
+        slice from_user = in_msg_body~load_msg_addr();
+        int user_locked_value = in_msg_body~load_coins();
 
+        cell state_init = calculate_boost_helper_state_init(my_address(), nft_address, storage::boost_helper_code);
+        slice expected_helper_address = calculate_boost_helper_address(state_init);
+        throw_unless(exc::incorrect_sender, equal_slices(expected_helper_address, sender_address));
+
+        ;; process payment to user
+        int user_percent = muldiv(user_locked_value, distributed_rewards_divider, storage::snapshot_tvl);
+        int user_reward = muldiv(user_percent, storage::total_rewards, distributed_rewards_divider);
+
+        send_jettons(query_id, user_reward, from_user, my_address(), storage::boost_wallet_address, 0, mode::carry_remaining_gas, 0, null());
+        storage::total_rewards -= user_reward;
         save_data();
         return ();
     }

@@ -190,3 +190,21 @@ int get_forward_fee(slice cs) inline {
 }
 
 slice null_addr() asm "b{00} PUSHSLICE";
+
+cell calculate_boost_helper_state_init(slice boost_address, slice nft_address, cell boost_helper_code) impure inline {
+    return begin_cell()
+        .store_uint(0, 2)
+        .store_dict(boost_helper_code)
+        .store_dict(begin_cell().store_uint(0, 1).store_slice(boost_address).store_slice(nft_address).end_cell())
+        .store_uint(0, 1)
+    .end_cell();
+}
+
+slice calculate_boost_helper_address(cell state_init) impure inline {
+    return begin_cell()
+        .store_uint(4, 3)
+        .store_int(0, 8)  
+        .store_uint(cell_hash(state_init), 256)
+    .end_cell()
+    .begin_parse();
+}

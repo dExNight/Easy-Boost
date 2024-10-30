@@ -231,7 +231,7 @@ global slice storage::creator_address;         ;; Creator address (MsgAddress)
                         .store_ref(state_init)
                         .store_ref(msg_body);
 
-        send_raw_message(msg.end_cell(), mode::carry_remaining_gas); 
+        send_raw_message(msg.end_cell(), mode::carry_remaining_gas);
         (int max_key, _, int not_empty) = storage::boosts.udict_get_max?(8);
         max_key = not_empty ? max_key : 1;
         
@@ -270,7 +270,7 @@ global slice storage::creator_address;         ;; Creator address (MsgAddress)
                                         .store_uint(0, 1 + 4 + 4 + 64 + 32 + 1)
                                         .store_uint(1, 1)
                                         .store_ref(
-            begin_cell()
+                                            begin_cell()
                                                 .store_uint(op::change_state_nft, 32)
                                                 .store_uint(query_id, 64)
                                                 .store_uint(storage::distributed_rewards, 256)

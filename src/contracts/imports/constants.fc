@@ -24,6 +24,7 @@ const int exc::not_merkle_proof = 60;
 const int exc::incorrect_merkle_root = 61;
 const int exc::address_blacklisted = 62;
 const int exc::boost_is_not_active = 63;
+const int exc::boost_is_not_finished = 66;
 const int exc::incorrect_body_content = 64;
 const int exc::unsupported_op = 0xffff;
 const int exc::already_claimed = 65;
@@ -66,7 +67,7 @@ const int op::transfer_nft = 0x5fcc3d14;
 const int op::ownership_assigned_nft = 0x05138d91;
 const int op::claim_nft = 0xa769de27;
 const int op::claim_boost_rewards = 0xb9efda2;
-const int op::claim_boost_proved = 0x7e7b7b7b;
+const int op::claim_boost_approve = 0x7e7b7b7b;
 const int op::withdraw_nft = 0xb5de5f9e;
 const int op::change_state_nft = 0xdca3da4c;
 
