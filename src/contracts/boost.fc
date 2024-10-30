@@ -22,7 +22,7 @@ global cell storage::boost_helper_code;
     storage::start_time = ds~load_uint(32);
     storage::end_time = ds~load_uint(32);
     storage::snapshot_item_index = ds~load_uint(32);
-    storage::snapshot_tvl = ds~load_uint(32);
+    storage::snapshot_tvl = ds~load_coins();
     storage::total_rewards = ds~load_coins();
     storage::farming_speed = ds~load_coins();
 
@@ -39,7 +39,7 @@ global cell storage::boost_helper_code;
             .store_uint(storage::start_time, 32)
             .store_uint(storage::end_time, 32)
             .store_uint(storage::snapshot_item_index, 32)
-            .store_uint(storage::snapshot_tvl, 32)
+            .store_coins(storage::snapshot_tvl)
             .store_coins(storage::total_rewards)
             .store_coins(storage::farming_speed)
             .store_slice(storage::pool_address)
@@ -49,6 +49,7 @@ global cell storage::boost_helper_code;
         .end_cell()
     );
 }
+
 
 () recv_internal(int my_balance, int msg_value, cell in_msg_full, slice in_msg_body) impure {
     if (in_msg_body.slice_empty?()) { ;; ignore empty messages
@@ -75,23 +76,29 @@ global cell storage::boost_helper_code;
         return ();
     }
 
-    if (op == op::transfer_notification) {
+    if (op == op::transfer_notification) { ;; Top up boost rewards
         (int jetton_amount, slice from_user) = (in_msg_body~load_coins(), in_msg_body~load_msg_addr());
         ifnot (equal_slices(sender_address, storage::boost_wallet_address)) {
             send_jettons(query_id, jetton_amount, from_user, from_user, sender_address, 0, mode::carry_remaining_gas, 1, null());  
             return ();
         }
-        if (in_msg_body.slice_refs() > 0) {
-            slice ref_cs = in_msg_body~load_ref().begin_parse();
-            int transferred_op = ref_cs~load_uint(32);
-            if (transferred_op == op::top_up_jetton_balance) {
-                storage::total_rewards += jetton_amount; 
-                storage::init? = 1;
-                save_data();
-                return ();
-            }
-            throw(exc::unsupported_op);
-        } 
+
+        int time_now = now();
+        if (time_now >= storage::end_time) { ;; Boost finished
+            send_jettons(query_id, jetton_amount, from_user, from_user, sender_address, 0, mode::carry_remaining_gas, 1, null());  
+            return ();
+        }
+        in_msg_body = in_msg_body~load_uint(1) ? in_msg_body~load_ref().begin_parse() : in_msg_body;
+        
+        int transferred_op = in_msg_body~load_uint(32);
+        if (transferred_op == op::top_up_jetton_balance) {
+            storage::total_rewards += jetton_amount; 
+            storage::farming_speed = muldiv(storage::total_rewards, farming_speed_divider, (storage::end_time - storage::start_time));
+            storage::init? = 1;
+            save_data();
+            return ();
+        }
+        throw(exc::unsupported_op);
         return ();
     }
 

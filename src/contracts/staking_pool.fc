@@ -235,7 +235,7 @@ global slice storage::creator_address;         ;; Creator address (MsgAddress)
         (int max_key, _, int not_empty) = storage::boosts.udict_get_max?(8);
         max_key = not_empty ? max_key : 1;
         
-        int bitsinslice = slice_bits(boost_address);
+        int bitsinslice = slice_bits(boost_address); ;; TODO: remove?
 
         storage::boosts~udict_set(8, max_key, boost_address);
         save_data();
@@ -284,33 +284,6 @@ global slice storage::creator_address;         ;; Creator address (MsgAddress)
         
         storage::last_update_time = time_now;
         save_data();
-        return ();
-    }
-
-    if (op == op::claim_boost_rewards) {
-        int item_index = in_msg_body~load_uint(32);
-        slice expected_item_address = calculate_nft_address_by_index(my_address(), storage::nft_item_code, item_index);
-        throw_unless(exc::incorrect_sender, equal_slices(expected_item_address, sender_address));  ;; check that NFT belongs to this collection
-        slice from_user = in_msg_body~load_msg_addr();
-        int locked_value = in_msg_body~load_coins();
-        int dict_size = in_msg_body~load_uint(8);
-        cell boosts = in_msg_body~load_dict();
-
-        int user_percent = locked_value * 1000000000 / storage::last_tvl; ;; refactor
-        int time_now = min(now(), storage::end_time);
-        
-        (dict_size, slice val, int f?) = boosts.udict_get_prev?(8, dict_size);
-        repeat (min(254, dict_size + 1)) {
-            if (f?) {
-                slice boost_addr = val~load_msg_addr();
-                cell proof = val~load_ref();
-                send_msg(boost_addr, gas::claim_boost_rewards, op::claim_boost_rewards, query_id, begin_cell().store_uint(user_percent, 32).store_uint(time_now, 32).store_slice(from_user).store_ref(proof), mode::simple);
-                (dict_size, val, f?) = boosts.udict_get_prev?(8, dict_size);
-            }
-        }
-        if (~ f?) {
-            send_excesses(from_user);
-        } 
         return ();
     }
 
@@ -404,7 +377,7 @@ global slice storage::creator_address;         ;; Creator address (MsgAddress)
         if (storage::last_tvl != 0) {
             throw_if(exc::incorrect_jetton, is_lock_jetton | is_reward_jetton);  ;; cant't withdraw main jetton
         }
-        elseif (is_reward_jetton & (storage::rewards_balance > jetton_amount)) {
+        elseif (is_reward_jetton & (storage::rewards_balance > jetton_amount)) { ;; TODO: check this conditions
             storage::rewards_balance -= jetton_amount;
             save_data();
         }
