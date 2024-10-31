@@ -41,10 +41,10 @@ global slice storage::creator_address;         ;; Creator address (MsgAddress)
     storage::last_update_time = ds~load_uint(32);
     storage::admin_address = ds~load_msg_addr();
 
-    slice code_cell_slice = ds~load_ref().begin_parse();
-    storage::nft_item_code = code_cell_slice~load_ref();
-    storage::boost_code = code_cell_slice~load_ref();
-    storage::boost_helper_code = code_cell_slice~load_ref();
+    slice code_cs = ds~load_ref().begin_parse();
+    storage::nft_item_code = code_cs~load_ref();
+    storage::boost_code = code_cs~load_ref();
+    storage::boost_helper_code = code_cs~load_ref();
 
     storage::boosts = ds~load_dict();
     storage::collection_content = ds~load_ref();

@@ -11,6 +11,7 @@ global slice storage::jetton_wallet_address;   ;; Address of the jettons jetton 
 global cell storage::staking_pool_code;    ;; Code of the staking pool (floating_staking_collection.fc) smart-contract. (Cell)
 global cell storage::nft_item_code;        ;; Code of the Bond NFT item (nft_item.fc) smart-contract. (Cell)
 global cell storage::boost_code;            ;; Code of the boost (Cell)
+global cell storage::boost_helper_code;    ;; Code of the boost helper (Cell)
 
 global int storage::team_commission_factor;  ;; Team commission factor (uint7)
 global slice storage::team_address;         ;; Address of the main project wallet. (MsgAddress)
@@ -25,9 +26,11 @@ global cell storage::content_host;          ;; Prefix of link to NFT collections
 
     storage::jetton_wallet_address = ds~load_msg_addr();
 
-    storage::staking_pool_code = ds~load_ref();
-    storage::nft_item_code = ds~load_ref();
-    storage::boost_code = ds~load_ref();
+    slice code_cs = ds~load_ref().begin_parse();
+    storage::staking_pool_code = code_cs~load_ref();
+    storage::nft_item_code = code_cs~load_ref();
+    storage::boost_code = code_cs~load_ref();
+    storage::boost_helper_code = code_cs~load_ref();
 
     ds = ds~load_ref().begin_parse();
     storage::team_commission_factor = ds~load_uint(7);
@@ -42,9 +45,13 @@ global cell storage::content_host;          ;; Prefix of link to NFT collections
             .store_coins(storage::creation_fee)
             .store_coins(storage::change_content_fee)
             .store_slice(storage::jetton_wallet_address)
-            .store_ref(storage::staking_pool_code)
-            .store_ref(storage::nft_item_code)
-            .store_ref(storage::boost_code)
+            .store_ref(begin_cell()
+                .store_ref(storage::staking_pool_code)
+                .store_ref(storage::nft_item_code)
+                .store_ref(storage::boost_code)
+                .store_ref(storage::boost_helper_code)
+                .end_cell()
+        )
             .store_ref(
             begin_cell()
                     .store_uint(storage::team_commission_factor, 7)
@@ -94,7 +101,7 @@ int check_pool_content(slice pool_content) inline { ;; returns -1 if the pool co
     cell pool_data = begin_cell()
                         .store_uint(0, 65)
                         .store_slice(my_address())
-                        .store_ref(begin_cell().store_ref(storage::nft_item_code).store_ref(storage::boost_code).end_cell())
+                        .store_ref(begin_cell().store_ref(storage::nft_item_code).store_ref(storage::boost_code).store_ref(storage::boost_helper_code).end_cell())
                         .store_dict(new_dict())
                         .store_slice(pool_content)
                     .end_cell();
@@ -307,7 +314,7 @@ int get_creation_fee() method_id {
     return (storage::team_address, storage::conversion_address);
 }
 
-(cell, cell, cell) get_codes() method_id {
+(cell, cell, cell, cell) get_codes() method_id {
     load_data();
-    return (storage::staking_pool_code, storage::nft_item_code, storage::boost_code);
+    return (storage::staking_pool_code, storage::nft_item_code, storage::boost_code, storage::boost_helper_code);
 }
