@@ -107,6 +107,7 @@ global cell storage::boost_helper_code;
         slice expected_item_address = calculate_nft_address_by_index(storage::pool_address, storage::item_code, item_index);
         throw_unless(exc::incorrect_sender, equal_slices(expected_item_address, sender_address));  ;; check that NFT belongs to pool
         throw_unless(exc::boost_is_not_finished, now() >= storage::end_time);  ;; check that boost is finished
+        throw_if(exc::not_eligible, item_index >= storage::snapshot_item_index); ;; check that item is eligible for rewards
 
         slice from_user = in_msg_body~load_msg_addr();
         int user_locked_value = in_msg_body~load_coins();

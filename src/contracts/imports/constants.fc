@@ -25,6 +25,7 @@ const int exc::incorrect_merkle_root = 61;
 const int exc::address_blacklisted = 62;
 const int exc::boost_is_not_active = 63;
 const int exc::boost_is_not_finished = 66;
+const int exc::not_eligible = 67;
 const int exc::incorrect_body_content = 64;
 const int exc::unsupported_op = 0xffff;
 const int exc::already_claimed = 65;
