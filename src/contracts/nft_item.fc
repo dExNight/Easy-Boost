@@ -199,17 +199,16 @@ global int storage::distributed_rewards;       ;; rewards that were distributed 
 
     if (op == op::claim_boost_rewards) {
         throw_unless(exc::incorrect_sender, equal_slices(storage::owner_address, sender_address));
-        throw_unless(exc::already_withdrawed, (storage::is_active == 1));
-
         slice boost_address = in_msg_body~load_msg_addr();
-
         throw_unless(exc::out_of_gas, msg_value > gas::claim_boost_rewards);
+
         cell msg_body = begin_cell()
                             .store_uint(op::claim_boost_rewards, 32)
                             .store_uint(query_id, 64)
                             .store_uint(storage::collection_index, 32)
                             .store_slice(storage::owner_address)
                             .store_coins(storage::locked_value)
+                            .store_uint(storage::withdrawed_at, 32)
                         .end_cell();
         builder msg = begin_cell()
                         .store_uint(0x18, 6) 
@@ -227,7 +226,7 @@ global int storage::distributed_rewards;       ;; rewards that were distributed 
         storage::distributed_rewards = in_msg_body~load_uint(256);
         storage::claimed_rewards += in_msg_body~load_coins();
 
-        if (in_msg_body~load_uint(1)) {
+        if (in_msg_body~load_int(1)) {
             builder msg = begin_cell()
                             .store_uint(0x10, 6) 
                             .store_slice(storage::owner_address)

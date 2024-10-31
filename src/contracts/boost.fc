@@ -111,6 +111,9 @@ global cell storage::boost_helper_code;
 
         slice from_user = in_msg_body~load_msg_addr();
         int user_locked_value = in_msg_body~load_coins();
+        int withdrawed_at = in_msg_body~load_uint(32);
+
+        throw_if(exc::not_eligible, (storage::end_time > withdrawed_at) & (withdrawed_at != 0)); ;; check that user participated in pool before boost finished
 
         ;; send msg to boost helper related to this item
         cell state_init = calculate_boost_helper_state_init(my_address(), sender_address, storage::boost_helper_code);
