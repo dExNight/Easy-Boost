@@ -44,6 +44,9 @@ global cell storage::content_host;          ;; Prefix of link to NFT collections
             .store_coins(storage::creation_fee)
             .store_coins(storage::change_content_fee)
             .store_slice(storage::jetton_wallet_address)
+            .store_uint(storage::team_commission_factor, 7)
+            .store_slice(storage::team_address)
+            .store_slice(storage::conversion_address)
             .store_ref(begin_cell()
                 .store_ref(storage::staking_pool_code)
                 .store_ref(storage::nft_item_code)
@@ -51,14 +54,7 @@ global cell storage::content_host;          ;; Prefix of link to NFT collections
                 .store_ref(storage::boost_helper_code)
                 .end_cell()
         )
-            .store_ref(
-            begin_cell()
-                    .store_uint(storage::team_commission_factor, 7)
-                    .store_slice(storage::team_address)
-                    .store_slice(storage::conversion_address)
-                    .store_ref(storage::content_host)
-                .end_cell()
-        )
+            .store_ref(storage::content_host)
         .end_cell()
     );
 }
@@ -66,23 +62,18 @@ global cell storage::content_host;          ;; Prefix of link to NFT collections
 int check_pool_content(slice pool_content) inline { ;; returns -1 if the pool content is correct, otherwise returns 0
     try {
         cell collection_content = pool_content~load_ref();
-
         int last_tvl = pool_content~load_coins();
         int distributed_rewards = pool_content~load_uint(256);
-
         int min_lock_period = pool_content~load_uint(32);
         int farming_speed = pool_content~load_coins();
-
         int rewards_balance = pool_content~load_coins();
         int commission_factor = pool_content~load_uint(16);
-
         int premint_open = pool_content~load_uint(1);
-
+        
         slice pool_content_2 = pool_content~load_ref().begin_parse();
         int start_time = pool_content_2~load_uint(32);
         int end_time = pool_content_2~load_uint(32);
         int minimum_deposit = pool_content_2~load_coins();
-
         slice lock_wallet_address = pool_content_2~load_msg_addr();
         slice rewards_wallet_address = pool_content_2~load_msg_addr();
         slice creator_address = pool_content_2~load_msg_addr();
@@ -151,9 +142,9 @@ int check_pool_content(slice pool_content) inline { ;; returns -1 if the pool co
 
         int jetton_amount = in_msg_body~load_coins();
         slice from_address = in_msg_body~load_msg_addr();
-
+        
         slice payload = in_msg_body~load_uint(1) ? in_msg_body~load_ref().begin_parse() : in_msg_body;
-
+        
         (int bits, int refs) = payload.slice_bits_refs();
         if (bits != 32) { ;; inner_op 
             send_jettons(query_id, jetton_amount, from_address, from_address, sender_address, 0, mode::carry_remaining_gas, 1, null());  

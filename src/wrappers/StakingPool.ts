@@ -13,7 +13,7 @@ import {
     toNano,
     TupleBuilder,
 } from '@ton/core';
-import { Gas, Opcodes } from './constants';
+import { Gas, OFFCHAIN_CONTENT_PREFIX, Opcodes } from './constants';
 
 export type StakingPoolConfig = {
     poolAdminAddress: Address;
@@ -35,8 +35,20 @@ export type CollectionData = {
     ownerAddress: Address;
 };
 
-export function stakingPoolConfigToCell(config: StakingPoolConfig): Cell {
-    const pool_content: Slice = beginCell()
+export type CollectionContent = {
+    uri: string;
+    base: string;
+};
+
+export function offchainCollectionContentToCell(content: CollectionContent): Cell {
+    return beginCell()
+        .storeRef(beginCell().storeUint(OFFCHAIN_CONTENT_PREFIX, 8).storeStringTail(content.uri).endCell())
+        .storeRef(beginCell().storeStringTail(content.base).endCell())
+        .endCell();
+}
+
+export function stakingPoolConfigToCell(config: StakingPoolConfig) {
+    const pool_content: Cell = beginCell()
         .storeRef(config.collectionContent)
         .storeCoins(0) // lastTvl
         .storeUint(0, 256) // distributedRewards
@@ -55,22 +67,24 @@ export function stakingPoolConfigToCell(config: StakingPoolConfig): Cell {
                 .storeAddress(config.creatorAddress)
                 .endCell(),
         )
-        .endCell()
-        .beginParse();
-
-    return beginCell()
-        .storeUint(0, 65)
-        .storeAddress(config.poolAdminAddress)
-        .storeRef(
-            beginCell()
-                .storeRef(config.nftItemCode)
-                .storeRef(config.boostCode)
-                .storeRef(config.boostHelperCode)
-                .endCell(),
-        )
-        .storeDict(null)
-        .storeSlice(pool_content)
         .endCell();
+
+    return {
+        data: beginCell()
+            .storeUint(0, 65)
+            .storeAddress(config.poolAdminAddress)
+            .storeRef(
+                beginCell()
+                    .storeRef(config.nftItemCode)
+                    .storeRef(config.boostCode)
+                    .storeRef(config.boostHelperCode)
+                    .endCell(),
+            )
+            .storeDict(null)
+            .storeSlice(pool_content.beginParse())
+            .endCell(),
+        poolContent: pool_content,
+    };
 }
 
 export class StakingPool implements Contract {
@@ -84,7 +98,7 @@ export class StakingPool implements Contract {
     }
 
     static createFromConfig(config: StakingPoolConfig, code: Cell, workchain = 0) {
-        const data = stakingPoolConfigToCell(config);
+        const { data } = stakingPoolConfigToCell(config);
         const init = { code, data };
         return new StakingPool(contractAddress(workchain, init), init);
     }

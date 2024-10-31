@@ -1,4 +1,4 @@
-import { Address, beginCell, Builder, Cell } from '@ton/core';
+import { beginCell, Builder, Cell } from '@ton/core';
 import { Opcodes } from './constants';
 
 export function buildDeployPoolPayload(poolData: Cell): Cell {

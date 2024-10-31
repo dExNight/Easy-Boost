@@ -68,4 +68,9 @@ export const ExitCodes = {
     address_blacklisted: 62,
 };
 
-export const DISTRIBUTED_REWARDS_DIVIDER: number = 100000000000000000000000000000000000000;
+export const StakingPool = {
+    DISTRIBUTED_REWARDS_DIVIDER: 100000000000000000000000000000000000000,
+    commissionDivider: 100000n,
+};
+
+export const OFFCHAIN_CONTENT_PREFIX: number = 0x01;
