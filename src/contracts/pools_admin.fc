@@ -25,17 +25,16 @@ global cell storage::content_host;          ;; Prefix of link to NFT collections
     storage::change_content_fee = ds~load_coins();
 
     storage::jetton_wallet_address = ds~load_msg_addr();
-
-    slice code_cs = ds~load_ref().begin_parse();
-    storage::staking_pool_code = code_cs~load_ref();
-    storage::nft_item_code = code_cs~load_ref();
-    storage::boost_code = code_cs~load_ref();
-    storage::boost_helper_code = code_cs~load_ref();
-
-    ds = ds~load_ref().begin_parse();
     storage::team_commission_factor = ds~load_uint(7);
     storage::team_address = ds~load_msg_addr();
     storage::conversion_address = ds~load_msg_addr(); 
+
+    slice dv = ds~load_ref().begin_parse();
+    storage::staking_pool_code = dv~load_ref();
+    storage::nft_item_code = dv~load_ref();
+    storage::boost_code = dv~load_ref();
+    storage::boost_helper_code = dv~load_ref();
+
     storage::content_host = ds~load_ref();
 }
 

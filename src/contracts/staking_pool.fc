@@ -270,7 +270,7 @@ global slice storage::creator_address;         ;; Creator address (MsgAddress)
                                         .store_uint(0, 1 + 4 + 4 + 64 + 32 + 1)
                                         .store_uint(1, 1)
                                         .store_ref(
-                                            begin_cell()
+            begin_cell()
                                                 .store_uint(op::change_state_nft, 32)
                                                 .store_uint(query_id, 64)
                                                 .store_uint(storage::distributed_rewards, 256)
@@ -451,10 +451,10 @@ int get_nft_rewards(int nft_locked_jettons, int nft_distributed_rewards) method_
     return user_rewards;
 }
 
-(int, int, int, cell, cell, cell, int, int, int, int, slice, int, int, int, int, int, int, slice, slice, slice) get_storage_data() method_id {
+(int, int, int, cell, cell, cell, cell, int, int, int, int, slice, int, int, int, int, int, int, slice, slice, slice) get_storage_data() method_id {
     load_data();
     return (storage::init?, storage::next_item_index, storage::last_update_time, storage::nft_item_code, storage::collection_content, 
-        storage::boost_code, storage::last_tvl, storage::distributed_rewards, storage::min_lock_period, storage::farming_speed, storage::rewards_wallet_address, 
+        storage::boost_code, storage::boost_helper_code, storage::last_tvl, storage::distributed_rewards, storage::min_lock_period, storage::farming_speed, storage::rewards_wallet_address, 
         storage::rewards_balance, storage::commission_factor, storage::premint_open, storage::start_time, storage::end_time, storage::minimum_deposit, 
         storage::lock_wallet_address, storage::admin_address, storage::creator_address
     );
