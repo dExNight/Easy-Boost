@@ -163,15 +163,25 @@ global cell storage::boost_helper_code;
     throw(exc::unsupported_op);
 }
 
-(int, int, int, int, int, slice, slice) get_boost_data() method_id {
+(int, int, int, int, int, int, int, slice, slice) get_boost_data() method_id {
     load_data();
     return (
         storage::init?,
         storage::start_time,
         storage::end_time,
-        storage::farming_speed,
+        storage::snapshot_item_index,
+        storage::snapshot_tvl,
         storage::total_rewards,
+        storage::farming_speed,
         storage::pool_address,
         storage::boost_wallet_address
+    );
+}
+
+(cell, cell) get_boost_codes() method_id {
+    load_data();
+    return (
+        storage::item_code,
+        storage::boost_helper_code
     );
 }
