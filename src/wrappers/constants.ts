@@ -40,6 +40,7 @@ export const Opcodes = {
     send_commissions: 0xb96adaea,
     change_host: 0x5369681a,
     set_jetton_wallet_address: 0xaaa1c1f3,
+    add_pool_rewards: 0xffffffff,
 
     // Boost
     top_up_jetton_balance: 0x343a0057,

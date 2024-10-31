@@ -5,10 +5,8 @@ import {
     Contract,
     contractAddress,
     ContractProvider,
-    Dictionary,
     Sender,
     SendMode,
-    Slice,
     toNano,
 } from '@ton/core';
 import { Gas, Opcodes } from './constants';
@@ -33,14 +31,6 @@ export class NftItem implements Contract {
         const data = nftItemConfigToCell(config);
         const init = { code, data };
         return new NftItem(contractAddress(workchain, init), init);
-    }
-
-    async sendDeploy(provider: ContractProvider, via: Sender, value: bigint) {
-        await provider.internal(via, {
-            value,
-            sendMode: SendMode.PAY_GAS_SEPARATELY,
-            body: beginCell().endCell(),
-        });
     }
 
     async sendTransferNft(
@@ -85,22 +75,14 @@ export class NftItem implements Contract {
         });
     }
 
-    async sendClaimBoostRewards(
-        provider: ContractProvider,
-        via: Sender,
-        opts: {
-            queryId?: number;
-            boosts: Dictionary<number, Slice>;
-        },
-    ) {
+    async sendClaimBoostRewards(provider: ContractProvider, via: Sender, boostAddress: Address, queryId?: number) {
         await provider.internal(via, {
-            value: Gas.claim_boost_rewards * BigInt(opts.boosts.size) + toNano('0.1'),
+            value: Gas.claim_boost_rewards,
             sendMode: SendMode.PAY_GAS_SEPARATELY,
             body: beginCell()
                 .storeUint(Opcodes.claim_boost_rewards, 32)
-                .storeUint(opts.queryId ?? 0, 64)
-                .storeUint(opts.boosts.size, 8)
-                .storeDict(opts.boosts)
+                .storeUint(queryId ?? 0, 64)
+                .storeAddress(boostAddress)
                 .endCell(),
         });
     }
@@ -176,15 +158,16 @@ export class NftItem implements Contract {
         return {
             init: result.readNumber(),
             index: result.readNumber(),
-            collection_address: result.readAddress(),
-            owner_address: result.readAddress(),
-            locked_value: result.readNumber(),
-            start_time: result.readNumber(),
-            unlock_time: result.readNumber(),
-            claimed_rewards: result.readBigNumber(),
-            is_transferrable: result.readNumber(),
-            is_active: result.readNumber(),
-            distributed_rewards: result.readBigNumber(),
+            collectionAddress: result.readAddress(),
+            ownerAddress: result.readAddress(),
+            lockedValue: result.readNumber(),
+            startTime: result.readNumber(),
+            unlockTime: result.readNumber(),
+            withdrawedAt: result.readNumber(),
+            claimedRewards: result.readBigNumber(),
+            isTransferrable: result.readNumber(),
+            isActive: result.readNumber(),
+            distributedRewards: result.readBigNumber(),
         };
     }
 }
