@@ -13,7 +13,7 @@ cell calculate_boost_stateinit(cell boost_code, int start_time, int end_time, in
                 .store_uint(start_time, 32)
                 .store_uint(end_time, 32)
                 .store_uint(snapshot_item_index, 32)
-                .store_uint(snapshot_tvl, 32)
+                .store_coins(snapshot_tvl)
                 .store_coins(0) ;; total_rewards
                 .store_coins(0) ;; farming_speed
                 .store_slice(pool_address)
