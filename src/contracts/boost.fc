@@ -185,3 +185,8 @@ global cell storage::boost_helper_code;
         storage::boost_helper_code
     );
 }
+
+slice get_boost_helper_address(slice nft_address) method_id {
+    load_data();
+    return calculate_boost_helper_address(calculate_boost_helper_state_init(my_address(), nft_address, storage::boost_helper_code));
+}

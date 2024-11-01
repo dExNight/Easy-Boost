@@ -43,11 +43,12 @@ global slice storage::nft_address;      ;; address of the nft (MsgAddress)
     throw_unless(exc::incorrect_sender, equal_slices(storage::boost_address, sender_address));
 
     if (op == op::claim_boost_rewards) {
-        throw_if(storage::claimed?, exc::already_claimed);
+        throw_if(exc::already_claimed, storage::claimed?);
 
         slice nft_address = in_msg_body~load_msg_addr();
         slice from_user = in_msg_body~load_msg_addr();
         int user_locked_value = in_msg_body~load_coins(); 
+
         ;; process claim
         cell msg_body = begin_cell()
                 .store_uint(op::claim_boost_approve, 32)
