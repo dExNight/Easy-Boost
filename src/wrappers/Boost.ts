@@ -1,4 +1,14 @@
-import { Address, beginCell, Cell, Contract, contractAddress, ContractProvider, Sender, SendMode } from '@ton/core';
+import {
+    Address,
+    beginCell,
+    Cell,
+    Contract,
+    contractAddress,
+    ContractProvider,
+    Sender,
+    SendMode,
+    TupleBuilder,
+} from '@ton/core';
 
 export type BoostConfig = {
     startTime: number | bigint;
@@ -72,5 +82,13 @@ export class Boost implements Contract {
             nftItemCode: result.readCell(),
             boostHelperCode: result.readCell(),
         };
+    }
+
+    async getBoostHelperAddress(provider: ContractProvider, nftItemAddress: Address) {
+        const params = new TupleBuilder();
+        params.writeAddress(nftItemAddress);
+        const result = (await provider.get('get_boost_helper_address', params.build())).stack;
+
+        return result.readAddress();
     }
 }

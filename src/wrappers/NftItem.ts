@@ -77,7 +77,7 @@ export class NftItem implements Contract {
 
     async sendClaimBoostRewards(provider: ContractProvider, via: Sender, boostAddress: Address, queryId?: number) {
         await provider.internal(via, {
-            value: Gas.claim_boost_rewards,
+            value: Gas.claim_boost_rewards + toNano(1),
             sendMode: SendMode.PAY_GAS_SEPARATELY,
             body: beginCell()
                 .storeUint(Opcodes.claim_boost_rewards, 32)

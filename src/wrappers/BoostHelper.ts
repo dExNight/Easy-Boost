@@ -9,20 +9,20 @@ export function boostHelperConfigToCell(config: BoostHelperConfig): Cell {
     return beginCell().storeUint(0, 1).storeAddress(config.boostAddress).storeAddress(config.nftAddress).endCell();
 }
 
-export class Boost implements Contract {
+export class BoostHelper implements Contract {
     constructor(
         readonly address: Address,
         readonly init?: { code: Cell; data: Cell },
     ) {}
 
     static createFromAddress(address: Address) {
-        return new Boost(address);
+        return new BoostHelper(address);
     }
 
     static createFromConfig(config: BoostHelperConfig, code: Cell, workchain = 0) {
         const data = boostHelperConfigToCell(config);
         const init = { code, data };
-        return new Boost(contractAddress(workchain, init), init);
+        return new BoostHelper(contractAddress(workchain, init), init);
     }
 
     async sendDeploy(provider: ContractProvider, via: Sender, value: bigint) {
