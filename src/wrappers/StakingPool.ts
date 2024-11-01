@@ -156,8 +156,6 @@ export class StakingPool implements Contract {
         opts: {
             startTime: number | bigint;
             endTime: number | bigint;
-            farmingSpeed: bigint;
-            merkleRoot: Buffer;
             boostWalletAddress: Address;
             queryId?: number;
         },

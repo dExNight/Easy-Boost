@@ -10,6 +10,7 @@ import { JettonWallet } from '../wrappers/JettonWallet';
 import { Gas, Opcodes, ExitCodes, StakingPool as PoolConstants } from '../wrappers/constants';
 import { SendMode } from '@ton/core';
 import {
+    buildAddBoostRewardsPayload,
     buildAddPoolRewardsPayload,
     buildClaimPoolRewardsPayload,
     buildDeployPoolPayload,
@@ -44,8 +45,8 @@ const testStackingPool = {
 
 const testBoost = {
     startTime: 1755000000,
-    endTime: 1706000000,
-    farmingSpeed: 1000000000n,
+    endTime: 1756000000,
+    farmingSpeed: 0n,
 };
 
 function calculateAddRewardsComission(jettonsAmount: bigint) {
@@ -88,6 +89,7 @@ describe('StakingPool', () => {
     let poolsAdminJettonWallet: SandboxContract<JettonWallet>;
     let stackingPoolRewardsWallet: SandboxContract<JettonWallet>;
     let stackingPoolLockWallet: SandboxContract<JettonWallet>;
+    let boostJettonWallet: SandboxContract<JettonWallet>;
 
     // Wallets
     let admin: SandboxContract<TreasuryContract>;
@@ -502,5 +504,166 @@ describe('StakingPool', () => {
         const userBalanceAfter: bigint = await userJettonWallet.getJettonBalance();
 
         expect(userBalanceBefore + claimedRewards).toEqual(userBalanceAfter);
+    });
+
+    it('should successfuly add boost', async () => {
+        const setWalletsResult = await stakingPool.sendSetWallets(poolCreator.getSender(), {
+            lockWalletAddress: stackingPoolLockWallet.address,
+            rewardsWalletAddress: stackingPoolRewardsWallet.address,
+        });
+
+        const addRewardsPoolResult = await poolCreatorJettonWallet.sendTransfer(poolCreator.getSender(), {
+            toAddress: stakingPool.address,
+            jettonAmount: REWARDS_JETTONS,
+            fwdAmount: toNano('0.25'),
+            fwdPayload: buildAddPoolRewardsPayload(),
+            value: toNano('0.5'),
+        });
+
+        blockchain.now = testStackingPool.startTime + 60; // 1 minute after start
+
+        const stakeJettonsPoolResult = await userJettonWallet.sendTransfer(user.getSender(), {
+            toAddress: stakingPool.address,
+            jettonAmount: STAKED_JETTONS,
+            fwdAmount: toNano('0.25'),
+            fwdPayload: buildStakeJettonsPoolPayload(testStackingPool.endTime - testStackingPool.startTime),
+            value: toNano('0.5'),
+        });
+
+        const { nextItemId } = await stakingPool.getCollectionData();
+        const { lastTvl } = await stakingPool.getStorageData();
+
+        boost = blockchain.openContract(
+            Boost.createFromConfig(
+                {
+                    startTime: testBoost.startTime,
+                    endTime: testBoost.endTime,
+                    snapshotItemIndex: nextItemId,
+                    snapshotTvl: lastTvl,
+                    poolAddress: stakingPool.address,
+                    nftItemCode: nftItemCode,
+                    boostHelperCode: boostHelperCode,
+                },
+                boostCode,
+            ),
+        );
+
+        boostJettonWallet = blockchain.openContract(
+            JettonWallet.createFromAddress(await jettonMinter.getWalletAddress(boost.address)),
+        );
+
+        const addBoostResult = await stakingPool.sendAddBoost(poolCreator.getSender(), {
+            startTime: testBoost.startTime,
+            endTime: testBoost.endTime,
+            boostWalletAddress: boostJettonWallet.address,
+        });
+
+        expect(addBoostResult.transactions).toHaveTransaction({
+            from: poolCreator.address,
+            to: stakingPool.address,
+            success: true,
+        });
+
+        expect(addBoostResult.transactions).toHaveTransaction({
+            from: stakingPool.address,
+            to: boost.address,
+            success: true,
+            deploy: true,
+        });
+
+        const { boostWalletAddress, init, farmingSpeed } = await boost.getBoostData();
+        expect(boostWalletAddress).toEqualAddress(boostJettonWallet.address);
+        expect(init).toEqual(0);
+        expect(farmingSpeed).toEqual(0n);
+    });
+
+    it('should successfuly top up boost', async () => {
+        const setWalletsResult = await stakingPool.sendSetWallets(poolCreator.getSender(), {
+            lockWalletAddress: stackingPoolLockWallet.address,
+            rewardsWalletAddress: stackingPoolRewardsWallet.address,
+        });
+
+        const addRewardsPoolResult = await poolCreatorJettonWallet.sendTransfer(poolCreator.getSender(), {
+            toAddress: stakingPool.address,
+            jettonAmount: REWARDS_JETTONS,
+            fwdAmount: toNano('0.25'),
+            fwdPayload: buildAddPoolRewardsPayload(),
+            value: toNano('0.5'),
+        });
+
+        blockchain.now = testStackingPool.startTime + 60; // 1 minute after start
+
+        const stakeJettonsPoolResult = await userJettonWallet.sendTransfer(user.getSender(), {
+            toAddress: stakingPool.address,
+            jettonAmount: STAKED_JETTONS,
+            fwdAmount: toNano('0.25'),
+            fwdPayload: buildStakeJettonsPoolPayload(testStackingPool.endTime - testStackingPool.startTime),
+            value: toNano('0.5'),
+        });
+
+        const { nextItemId } = await stakingPool.getCollectionData();
+        const { lastTvl } = await stakingPool.getStorageData();
+
+        boost = blockchain.openContract(
+            Boost.createFromConfig(
+                {
+                    startTime: testBoost.startTime,
+                    endTime: testBoost.endTime,
+                    snapshotItemIndex: nextItemId,
+                    snapshotTvl: lastTvl,
+                    poolAddress: stakingPool.address,
+                    nftItemCode: nftItemCode,
+                    boostHelperCode: boostHelperCode,
+                },
+                boostCode,
+            ),
+        );
+
+        boostJettonWallet = blockchain.openContract(
+            JettonWallet.createFromAddress(await jettonMinter.getWalletAddress(boost.address)),
+        );
+
+        const addBoostResult = await stakingPool.sendAddBoost(poolCreator.getSender(), {
+            startTime: testBoost.startTime,
+            endTime: testBoost.endTime,
+            boostWalletAddress: boostJettonWallet.address,
+        });
+
+        const addBoostRewardsResult = await poolCreatorJettonWallet.sendTransfer(poolCreator.getSender(), {
+            toAddress: boost.address,
+            jettonAmount: BOOST_JETTONS,
+            fwdAmount: toNano('0.1'),
+            fwdPayload: buildAddBoostRewardsPayload(),
+            value: toNano('0.2'),
+        });
+
+        expect(addBoostRewardsResult.transactions).toHaveTransaction({
+            from: poolCreator.address,
+            to: poolCreatorJettonWallet.address,
+            success: true,
+            outMessagesCount: 1,
+            op: Opcodes.transfer_jetton,
+        });
+
+        expect(addBoostRewardsResult.transactions).toHaveTransaction({
+            from: poolCreatorJettonWallet.address,
+            to: boostJettonWallet.address,
+            success: true,
+            op: Opcodes.internal_transfer,
+        });
+
+        expect(addBoostRewardsResult.transactions).toHaveTransaction({
+            from: boostJettonWallet.address,
+            to: boost.address,
+            success: true,
+            op: Opcodes.transfer_notification,
+        });
+
+        const { snapshotItemIndex, snapshotTvl, totalRewards, farmingSpeed } = await boost.getBoostData();
+
+        expect(snapshotItemIndex).toEqual(nextItemId);
+        expect(snapshotTvl).toEqual(lastTvl);
+        expect(totalRewards).toEqual(BOOST_JETTONS);
+        expect(farmingSpeed).toBeGreaterThan(0n);
     });
 });
