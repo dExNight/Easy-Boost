@@ -351,10 +351,9 @@ export class StakingPool implements Contract {
 
     async getBoosts(provider: ContractProvider): Promise<Address[]> {
         const result = (await provider.get('get_boosts', [])).stack;
-        return result
-            .readCell()
-            .beginParse()
-            .loadDictDirect(Dictionary.Keys.Uint(8), Dictionary.Values.Address())
-            .values();
+        const dict = result.readCell();
+        const dict_s = dict.beginParse();
+        const boosts = dict_s.loadDictDirect(Dictionary.Keys.Uint(8), Dictionary.Values.Address());
+        return boosts.values();
     }
 }

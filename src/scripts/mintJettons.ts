@@ -1,12 +1,12 @@
 import { Address, beginCell, toNano } from '@ton/core';
 import { JettonMinter } from '../wrappers/JettonMinter';
 import { compile, NetworkProvider } from '@ton/blueprint';
+import { amountToJettons } from '../wrappers/utils';
 
 const JETTON_ADMIN_ADDRESS: Address = Address.parse('0QAAeHjRVfqPfRIjkPlxcv-OAffJUfAxWSu6RFli4FUeUCRn');
 const JETTON_METADATA_URL: string = 'https://raw.githubusercontent.com/dExNight/ProjectConfigurations/refs/heads/main/Nightmare/metadata.json';
 
 const JETTONS_TO_MINT: number = 100000000;
-const decimals: number = 9;
 
 export async function run(provider: NetworkProvider) {
     const jettonMinter = provider.open(
@@ -30,7 +30,7 @@ export async function run(provider: NetworkProvider) {
     // Mint tokens
     await jettonMinter.sendMint(provider.sender(), {
         to: provider.sender().address!,
-        jettonAmount: BigInt(JETTONS_TO_MINT * 10 ** decimals),
+        jettonAmount: amountToJettons(JETTONS_TO_MINT),
         fwdTonAmount: 1n,
         totalTonAmount: toNano('0.05'),
     });
