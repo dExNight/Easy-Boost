@@ -799,6 +799,95 @@ describe('StakingPool', () => {
 
         const { claimed } = await boostHelper.getHelperData();
         expect(claimed).toEqual(1);
+
+        const { totalRewards } = await boost.getBoostData();
+        expect(totalRewards).toEqual(0n);
+    });
+
+    it('should not claim boost rewards before boost is end', async () => {
+        const setWalletsResult = await stakingPool.sendSetWallets(poolCreator.getSender(), {
+            lockWalletAddress: stackingPoolLockWallet.address,
+            rewardsWalletAddress: stackingPoolRewardsWallet.address,
+        });
+
+        const addRewardsPoolResult = await poolCreatorJettonWallet.sendTransfer(poolCreator.getSender(), {
+            toAddress: stakingPool.address,
+            jettonAmount: REWARDS_JETTONS,
+            fwdAmount: toNano('0.25'),
+            fwdPayload: buildAddPoolRewardsPayload(),
+            value: toNano('0.5'),
+        });
+
+        blockchain.now = testStackingPool.startTime + 60; // 1 minute after start
+
+        const stakeJettonsPoolResult = await userJettonWallet.sendTransfer(user.getSender(), {
+            toAddress: stakingPool.address,
+            jettonAmount: STAKED_JETTONS,
+            fwdAmount: toNano('0.25'),
+            fwdPayload: buildStakeJettonsPoolPayload(testStackingPool.endTime - testStackingPool.startTime),
+            value: toNano('0.5'),
+        });
+
+        const { nextItemId } = await stakingPool.getCollectionData();
+        const { lastTvl } = await stakingPool.getStorageData();
+
+        boost = blockchain.openContract(
+            Boost.createFromConfig(
+                {
+                    startTime: testBoost.startTime,
+                    endTime: testBoost.endTime,
+                    snapshotItemIndex: nextItemId,
+                    snapshotTvl: lastTvl,
+                    poolAddress: stakingPool.address,
+                    nftItemCode: nftItemCode,
+                    boostHelperCode: boostHelperCode,
+                },
+                boostCode,
+            ),
+        );
+
+        boostJettonWallet = blockchain.openContract(
+            JettonWallet.createFromAddress(await jettonMinter.getWalletAddress(boost.address)),
+        );
+
+        const addBoostResult = await stakingPool.sendAddBoost(poolCreator.getSender(), {
+            startTime: testBoost.startTime,
+            endTime: testBoost.endTime,
+            boostWalletAddress: boostJettonWallet.address,
+        });
+
+        const addBoostRewardsResult = await poolCreatorJettonWallet.sendTransfer(poolCreator.getSender(), {
+            toAddress: boost.address,
+            jettonAmount: BOOST_JETTONS,
+            fwdAmount: toNano('0.1'),
+            fwdPayload: buildAddBoostRewardsPayload(),
+            value: toNano('0.2'),
+        });
+
+        blockchain.now = testBoost.endTime - 60; // 1 minute before end
+
+        boostHelper = blockchain.openContract(
+            BoostHelper.createFromAddress(await boost.getBoostHelperAddress(nftItem.address)),
+        );
+        const userBalanceBefore: bigint = await userJettonWallet.getJettonBalance();
+
+        const claimBoostRewardsResult = await nftItem.sendClaimBoostRewards(user.getSender(), boost.address);
+
+        expect(claimBoostRewardsResult.transactions).toHaveTransaction({
+            from: user.address,
+            to: nftItem.address,
+            success: true,
+        });
+
+        expect(claimBoostRewardsResult.transactions).toHaveTransaction({
+            from: nftItem.address,
+            to: boost.address,
+            success: false,
+            exitCode: ExitCodes.boost_is_not_finished,
+        });
+
+        const userBalanceAfter: bigint = await userJettonWallet.getJettonBalance();
+        expect(userBalanceBefore).toEqual(userBalanceAfter);
     });
 
     it('should not claim boost rewards by not eligible staker', async () => {
@@ -1115,5 +1204,8 @@ describe('StakingPool', () => {
 
         const { claimed: claimedAfter } = await boostHelper.getHelperData();
         expect(claimedAfter).toEqual(1);
+
+        const { totalRewards } = await boost.getBoostData();
+        expect(Number(fromNano(totalRewards))).toBeCloseTo(Number(fromNano(BOOST_JETTONS - expectedUserReward)));
     });
 });

@@ -67,6 +67,7 @@ export const Gas = {
 export const ExitCodes = {
     address_blacklisted: 62,
     already_claimed: 65,
+    boost_is_not_finished: 66,
     not_eligible: 67,
 };
 
