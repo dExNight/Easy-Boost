@@ -1,7 +1,6 @@
 import {
     Address,
     beginCell,
-    Builder,
     Cell,
     Contract,
     contractAddress,
@@ -9,7 +8,6 @@ import {
     Dictionary,
     Sender,
     SendMode,
-    Slice,
     toNano,
     TupleBuilder,
 } from '@ton/core';
