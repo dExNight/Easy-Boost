@@ -80,17 +80,17 @@ describe('StakingPool', () => {
     let poolsAdmin: SandboxContract<PoolsAdmin>;
     let stakingPool: SandboxContract<StakingPool>;
     let nftItem: SandboxContract<NftItem>;
-    let noteligibleNftItem: SandboxContract<NftItem>;
+    let secondUserNftItem: SandboxContract<NftItem>;
     let boost: SandboxContract<Boost>;
     let boostHelper: SandboxContract<BoostHelper>;
-    let noteligibleBoostHelper: SandboxContract<BoostHelper>;
+    let secondUserBoostHelper: SandboxContract<BoostHelper>;
 
     // Jettons
     let jettonMinter: SandboxContract<JettonMinter>;
     let adminJettonWallet: SandboxContract<JettonWallet>;
     let poolCreatorJettonWallet: SandboxContract<JettonWallet>;
     let userJettonWallet: SandboxContract<JettonWallet>;
-    let noteligibleJettonWallet: SandboxContract<JettonWallet>;
+    let secondUserJettonWallet: SandboxContract<JettonWallet>;
     let poolsAdminJettonWallet: SandboxContract<JettonWallet>;
     let stackingPoolRewardsWallet: SandboxContract<JettonWallet>;
     let stackingPoolLockWallet: SandboxContract<JettonWallet>;
@@ -99,7 +99,7 @@ describe('StakingPool', () => {
     // Wallets
     let admin: SandboxContract<TreasuryContract>;
     let user: SandboxContract<TreasuryContract>;
-    let noteligible_user: SandboxContract<TreasuryContract>;
+    let secondUser: SandboxContract<TreasuryContract>;
     let team: SandboxContract<TreasuryContract>;
     let poolCreator: SandboxContract<TreasuryContract>;
 
@@ -108,7 +108,7 @@ describe('StakingPool', () => {
 
         admin = await blockchain.treasury('admin');
         user = await blockchain.treasury('user');
-        noteligible_user = await blockchain.treasury('noteligible_user');
+        secondUser = await blockchain.treasury('secondUser');
         team = await blockchain.treasury('team');
         poolCreator = await blockchain.treasury('poolCreator');
         deployer = await blockchain.treasury('deployer');
@@ -167,7 +167,7 @@ describe('StakingPool', () => {
         });
 
         await jettonMinter.sendMint(deployer.getSender(), {
-            to: noteligible_user.address,
+            to: secondUser.address,
             jettonAmount: STAKED_JETTONS / 2n,
             fwdTonAmount: 1n,
             totalTonAmount: toNano('0.05'),
@@ -189,14 +189,14 @@ describe('StakingPool', () => {
             JettonWallet.createFromAddress(await jettonMinter.getWalletAddress(user.address)),
         );
 
-        noteligibleJettonWallet = blockchain.openContract(
-            JettonWallet.createFromAddress(await jettonMinter.getWalletAddress(noteligible_user.address)),
+        secondUserJettonWallet = blockchain.openContract(
+            JettonWallet.createFromAddress(await jettonMinter.getWalletAddress(secondUser.address)),
         );
 
         expect(await adminJettonWallet.getJettonBalance()).toEqual(toNano('10000'));
         expect(await poolCreatorJettonWallet.getJettonBalance()).toEqual(toNano('10000'));
         expect(await userJettonWallet.getJettonBalance()).toEqual(STAKED_JETTONS);
-        expect(await noteligibleJettonWallet.getJettonBalance()).toEqual(STAKED_JETTONS / 2n);
+        expect(await secondUserJettonWallet.getJettonBalance()).toEqual(STAKED_JETTONS / 2n);
 
         const deployResult = await poolsAdmin.sendDeploy(deployer.getSender(), toNano('0.05'));
         expect(deployResult.transactions).toHaveTransaction({
@@ -863,11 +863,11 @@ describe('StakingPool', () => {
 
         blockchain.now = blockchain.now + 60;
 
-        noteligibleNftItem = blockchain.openContract(
+        secondUserNftItem = blockchain.openContract(
             NftItem.createFromAddress(await stakingPool.getNftAddressByIndex(1)),
         );
 
-        const stakeJettonsPoolResult2 = await noteligibleJettonWallet.sendTransfer(noteligible_user.getSender(), {
+        const stakeJettonsPoolResult2 = await secondUserJettonWallet.sendTransfer(secondUser.getSender(), {
             toAddress: stakingPool.address,
             jettonAmount: STAKED_JETTONS / 2n,
             fwdAmount: toNano('0.25'),
@@ -876,15 +876,15 @@ describe('StakingPool', () => {
         });
 
         expect(stakeJettonsPoolResult2.transactions).toHaveTransaction({
-            from: noteligible_user.address,
-            to: noteligibleJettonWallet.address,
+            from: secondUser.address,
+            to: secondUserJettonWallet.address,
             success: true,
             outMessagesCount: 1,
             op: Opcodes.transfer_jetton,
         });
 
         expect(stakeJettonsPoolResult2.transactions).toHaveTransaction({
-            from: noteligibleJettonWallet.address,
+            from: secondUserJettonWallet.address,
             to: stackingPoolLockWallet.address,
             success: true,
             op: Opcodes.internal_transfer,
@@ -899,33 +899,33 @@ describe('StakingPool', () => {
 
         expect(stakeJettonsPoolResult2.transactions).toHaveTransaction({
             from: stakingPool.address,
-            to: noteligibleNftItem.address,
+            to: secondUserNftItem.address,
             success: true,
             deploy: true,
         });
 
-        const { owner_address } = await noteligibleNftItem.getNftData();
-        expect(owner_address).toEqualAddress(noteligible_user.address);
+        const { owner_address } = await secondUserNftItem.getNftData();
+        expect(owner_address).toEqualAddress(secondUser.address);
 
         blockchain.now = testBoost.endTime + 60; // 1 minute after end
 
-        noteligibleBoostHelper = blockchain.openContract(
-            BoostHelper.createFromAddress(await boost.getBoostHelperAddress(noteligibleNftItem.address)),
+        secondUserBoostHelper = blockchain.openContract(
+            BoostHelper.createFromAddress(await boost.getBoostHelperAddress(secondUserNftItem.address)),
         );
 
-        const claimBoostRewardsResult = await noteligibleNftItem.sendClaimBoostRewards(
-            noteligible_user.getSender(),
+        const claimBoostRewardsResult = await secondUserNftItem.sendClaimBoostRewards(
+            secondUser.getSender(),
             boost.address,
         );
 
         expect(claimBoostRewardsResult.transactions).toHaveTransaction({
-            from: noteligible_user.address,
-            to: noteligibleNftItem.address,
+            from: secondUser.address,
+            to: secondUserNftItem.address,
             success: true,
         });
 
         expect(claimBoostRewardsResult.transactions).toHaveTransaction({
-            from: noteligibleNftItem.address,
+            from: secondUserNftItem.address,
             to: boost.address,
             success: false,
             exitCode: ExitCodes.not_eligible,
@@ -958,7 +958,7 @@ describe('StakingPool', () => {
 
         blockchain.now = blockchain.now + 60;
 
-        const stakeJettonsPoolResult2 = await noteligibleJettonWallet.sendTransfer(noteligible_user.getSender(), {
+        const stakeJettonsPoolResult2 = await secondUserJettonWallet.sendTransfer(secondUser.getSender(), {
             toAddress: stakingPool.address,
             jettonAmount: STAKED_JETTONS / 2n,
             fwdAmount: toNano('0.25'),
@@ -967,15 +967,15 @@ describe('StakingPool', () => {
         });
 
         expect(stakeJettonsPoolResult2.transactions).toHaveTransaction({
-            from: noteligible_user.address,
-            to: noteligibleJettonWallet.address,
+            from: secondUser.address,
+            to: secondUserJettonWallet.address,
             success: true,
             outMessagesCount: 1,
             op: Opcodes.transfer_jetton,
         });
 
         expect(stakeJettonsPoolResult2.transactions).toHaveTransaction({
-            from: noteligibleJettonWallet.address,
+            from: secondUserJettonWallet.address,
             to: stackingPoolLockWallet.address,
             success: true,
             op: Opcodes.internal_transfer,
@@ -990,7 +990,7 @@ describe('StakingPool', () => {
 
         expect(stakeJettonsPoolResult2.transactions).toHaveTransaction({
             from: stakingPool.address,
-            to: noteligibleNftItem.address,
+            to: secondUserNftItem.address,
             success: true,
             deploy: true,
         });
