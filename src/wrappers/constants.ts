@@ -66,6 +66,8 @@ export const Gas = {
 
 export const ExitCodes = {
     address_blacklisted: 62,
+    already_claimed: 65,
+    not_eligible: 67,
 };
 
 export const StakingPool = {
