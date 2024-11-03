@@ -12,7 +12,7 @@ global cell storage::boost_code;               ;; Boost code (Cell)
 global cell storage::boost_helper_code;        ;; Boost helper code (Cell)
 global cell storage::collection_content;       ;; Collection content (Cell)
 
-global cell storage::boosts;                   ;; Boosts addresses dictionary (HashMap)
+global int storage::next_boost_index;          ;; Next boost index (uint32)
 
 global int storage::last_tvl;                  ;; Current TVL (coins)
 global int storage::distributed_rewards;       ;; Amount of rewards currently distributed among stakers (per `distributed_rewards_divider` jettons)
@@ -46,7 +46,7 @@ global slice storage::creator_address;         ;; Creator address (MsgAddress)
     storage::boost_code = code_cs~load_ref();
     storage::boost_helper_code = code_cs~load_ref();
 
-    storage::boosts = ds~load_dict();
+    storage::next_boost_index = ds~load_uint(32);
     storage::collection_content = ds~load_ref();
 
     storage::last_tvl = ds~load_coins();
@@ -78,7 +78,7 @@ global slice storage::creator_address;         ;; Creator address (MsgAddress)
             .store_uint(storage::last_update_time, 32)
             .store_slice(storage::admin_address)
             .store_ref(begin_cell().store_ref(storage::nft_item_code).store_ref(storage::boost_code).store_ref(storage::boost_helper_code).end_cell())
-            .store_dict(storage::boosts)
+            .store_uint(storage::next_boost_index, 32)
             .store_ref(storage::collection_content)
             .store_coins(storage::last_tvl)
             .store_uint(storage::distributed_rewards, 256)
@@ -218,10 +218,23 @@ global slice storage::creator_address;         ;; Creator address (MsgAddress)
 
     if (op == op::add_boost) {
         throw_if(exc::out_of_gas, msg_value < gas::add_boost);
-        cell state_init = calculate_boost_stateinit(storage::boost_code, in_msg_body~load_uint(32), in_msg_body~load_uint(32), storage::next_item_index, storage::last_tvl, my_address(), null_addr(), storage::nft_item_code, storage::boost_helper_code);
-        slice boost_address = calculate_boost_address(storage::boost_code, state_init);
+        cell state_init = calculate_boost_stateinit(storage::boost_code, my_address(), storage::next_boost_index, storage::nft_item_code, storage::boost_helper_code);
+        slice boost_address = calculate_boost_address(state_init);
 
-        cell msg_body = begin_cell().store_uint(op::set_boost_wallet_address, 32).store_uint(query_id, 64).store_slice(in_msg_body~load_msg_addr()).end_cell();
+        int start_time = in_msg_body~load_uint(32);
+        int end_time = in_msg_body~load_uint(32);
+        ;; use next boost index
+        cell msg_body = begin_cell()
+                .store_uint(op::initialize_boost, 32)
+                .store_uint(query_id, 64)
+                .store_slice(sender_address)
+                .store_uint(start_time, 32) ;; start_time
+                .store_uint(end_time, 32) ;; end_time
+                .store_uint(storage::next_item_index, 32)
+                .store_coins(storage::last_tvl)
+                .store_coins(0) ;; total_rewards
+                .store_coins(0) ;; farming_speed
+            .end_cell();
 
         builder msg = begin_cell()
                         .store_uint(0x18, 6)
@@ -232,12 +245,9 @@ global slice storage::creator_address;         ;; Creator address (MsgAddress)
                         .store_ref(msg_body);
 
         send_raw_message(msg.end_cell(), mode::carry_remaining_gas);
-        (int max_key, _, int not_empty) = storage::boosts.udict_get_max?(8);
-        max_key = not_empty ? max_key : 1;
         
         int bitsinslice = slice_bits(boost_address); ;; TODO: remove?
-
-        storage::boosts~udict_set(8, max_key, boost_address);
+        storage::next_boost_index += 1;
         save_data();
         return ();
     }
@@ -451,18 +461,21 @@ int get_nft_rewards(int nft_locked_jettons, int nft_distributed_rewards) method_
     return user_rewards;
 }
 
-(int, int, int, cell, cell, cell, cell, int, int, int, int, slice, int, int, int, int, int, int, slice, slice, slice) get_storage_data() method_id {
+(int, int, int, cell, cell, cell, cell, int, int, int, int, int, slice, int, int, int, int, int, int, slice, slice, slice) get_storage_data() method_id {
     load_data();
     return (storage::init?, storage::next_item_index, storage::last_update_time, storage::nft_item_code, storage::collection_content, 
-        storage::boost_code, storage::boost_helper_code, storage::last_tvl, storage::distributed_rewards, storage::min_lock_period, storage::farming_speed, storage::rewards_wallet_address, 
+        storage::boost_code, storage::boost_helper_code, storage::next_boost_index, storage::last_tvl, storage::distributed_rewards, storage::min_lock_period, storage::farming_speed, storage::rewards_wallet_address, 
         storage::rewards_balance, storage::commission_factor, storage::premint_open, storage::start_time, storage::end_time, storage::minimum_deposit, 
         storage::lock_wallet_address, storage::admin_address, storage::creator_address
     );
 }
 
-cell get_boosts() method_id {
+slice get_boost(int boost_index) method_id {
     load_data();
-    return begin_cell().store_dict(storage::boosts).end_cell();
+    cell state_init = calculate_boost_stateinit(storage::boost_code, my_address(), storage::next_boost_index, storage::nft_item_code, storage::boost_helper_code);
+    slice boost_address = calculate_boost_address(state_init);
+
+    return boost_address;
 }
 
 int get_premint_status() method_id {

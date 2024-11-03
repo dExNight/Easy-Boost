@@ -3,13 +3,15 @@
 #include "imports/utils.fc";
 
 global int storage::init?;
+global slice storage::pool_address;
+global int storage::boost_index;
+global slice storage::creator_address;
 global int storage::start_time;
 global int storage::end_time;
 global int storage::snapshot_item_index;
 global int storage::snapshot_tvl;
 global int storage::total_rewards;
 global int storage::farming_speed;
-global slice storage::pool_address;
 global slice storage::boost_wallet_address;
 
 global cell storage::item_code;
@@ -19,15 +21,21 @@ global cell storage::boost_helper_code;
 () load_data() impure inline {
     slice ds = get_data().begin_parse();
     storage::init? = ds~load_uint(1);
-    storage::start_time = ds~load_uint(32);
-    storage::end_time = ds~load_uint(32);
-    storage::snapshot_item_index = ds~load_uint(32);
-    storage::snapshot_tvl = ds~load_coins();
-    storage::total_rewards = ds~load_coins();
-    storage::farming_speed = ds~load_coins();
-
     storage::pool_address = ds~load_msg_addr();
-    storage::boost_wallet_address = ds~load_msg_addr();
+    storage::boost_index = ds~load_uint(32);
+    
+    if (slice_refs(ds) > 2) {
+        slice dv = ds~load_ref().begin_parse();
+        storage::creator_address = dv~load_msg_addr();
+        storage::start_time = dv~load_uint(32);
+        storage::end_time = dv~load_uint(32);
+        storage::snapshot_item_index = dv~load_uint(32);
+        storage::snapshot_tvl = dv~load_coins();
+        storage::total_rewards = dv~load_coins();
+        storage::farming_speed = dv~load_coins();
+        storage::boost_wallet_address = dv~load_msg_addr();
+    }
+
     storage::item_code = ds~load_ref();
     storage::boost_helper_code = ds~load_ref();
 }
@@ -36,14 +44,20 @@ global cell storage::boost_helper_code;
     set_data(
         begin_cell()
             .store_uint(storage::init?, 1)
-            .store_uint(storage::start_time, 32)
-            .store_uint(storage::end_time, 32)
-            .store_uint(storage::snapshot_item_index, 32)
-            .store_coins(storage::snapshot_tvl)
-            .store_coins(storage::total_rewards)
-            .store_coins(storage::farming_speed)
             .store_slice(storage::pool_address)
-            .store_slice(storage::boost_wallet_address)
+            .store_uint(storage::boost_index, 32)
+            .store_ref(
+            begin_cell()
+                    .store_slice(storage::creator_address)
+                    .store_uint(storage::start_time, 32)
+                    .store_uint(storage::end_time, 32)
+                    .store_uint(storage::snapshot_item_index, 32)
+                    .store_coins(storage::snapshot_tvl)
+                    .store_coins(storage::total_rewards)
+                    .store_coins(storage::farming_speed)
+                    .store_slice(storage::boost_wallet_address)
+                .end_cell()
+        )
             .store_ref(storage::item_code)
             .store_ref(storage::boost_helper_code)
         .end_cell()
@@ -69,9 +83,29 @@ global cell storage::boost_helper_code;
     int query_id = in_msg_body~load_uint(64);
 
     if (op == op::set_boost_wallet_address) {
+        throw_unless(exc::incorrect_sender, equal_slices(storage::creator_address, sender_address));
+        throw_unless(666, storage::init?);
+        throw_if(666, slice_bits(storage::boost_wallet_address) > 2);
+
+        storage::boost_wallet_address = in_msg_body~load_msg_addr();
+        save_data();
+        return ();
+    }
+
+    if (op == op::initialize_boost) {
         throw_unless(exc::incorrect_sender, equal_slices(storage::pool_address, sender_address));
         throw_if(666, storage::init?);
-        storage::boost_wallet_address = in_msg_body~load_msg_addr();
+
+        storage::creator_address = in_msg_body~load_msg_addr();
+        storage::start_time = in_msg_body~load_uint(32);
+        storage::end_time = in_msg_body~load_uint(32);
+        storage::snapshot_item_index = in_msg_body~load_uint(32);
+        storage::snapshot_tvl = in_msg_body~load_coins();
+        storage::total_rewards = in_msg_body~load_coins();
+        storage::farming_speed = in_msg_body~load_coins();
+        storage::boost_wallet_address = null_addr();
+
+        storage::init? = 1;
         save_data();
         return ();
     }
@@ -92,7 +126,7 @@ global cell storage::boost_helper_code;
         
         int transferred_op = in_msg_body~load_uint(32);
         if (transferred_op == op::top_up_jetton_balance) {
-            storage::total_rewards += jetton_amount; 
+            storage::total_rewards += jetton_amount;
             storage::farming_speed = muldiv(storage::total_rewards, farming_speed_divider, (storage::end_time - storage::start_time));
             storage::init? = 1;
             save_data();
@@ -163,17 +197,19 @@ global cell storage::boost_helper_code;
     throw(exc::unsupported_op);
 }
 
-(int, int, int, int, int, int, int, slice, slice) get_boost_data() method_id {
+(int, slice, int, slice, int, int, int, int, int, int, slice) get_boost_data() method_id {
     load_data();
     return (
         storage::init?,
+        storage::pool_address,
+        storage::boost_index,
+        storage::creator_address,
         storage::start_time,
         storage::end_time,
         storage::snapshot_item_index,
         storage::snapshot_tvl,
         storage::total_rewards,
         storage::farming_speed,
-        storage::pool_address,
         storage::boost_wallet_address
     );
 }

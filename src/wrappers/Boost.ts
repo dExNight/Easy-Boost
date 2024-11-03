@@ -9,13 +9,11 @@ import {
     SendMode,
     TupleBuilder,
 } from '@ton/core';
+import { Opcodes, Gas } from './constants';
 
 export type BoostConfig = {
-    startTime: number | bigint;
-    endTime: number | bigint;
-    snapshotItemIndex: number;
-    snapshotTvl: number | bigint;
     poolAddress: Address;
+    boostIndex: number;
     nftItemCode: Cell;
     boostHelperCode: Cell;
 };
@@ -23,14 +21,8 @@ export type BoostConfig = {
 export function boostConfigToCell(config: BoostConfig): Cell {
     return beginCell()
         .storeUint(0, 1)
-        .storeUint(config.startTime, 32)
-        .storeUint(config.endTime, 32)
-        .storeUint(config.snapshotItemIndex, 32)
-        .storeCoins(config.snapshotTvl)
-        .storeCoins(0)
-        .storeCoins(0)
         .storeAddress(config.poolAddress)
-        .storeAddress(null)
+        .storeUint(config.boostIndex, 32)
         .storeRef(config.nftItemCode)
         .storeRef(config.boostHelperCode)
         .endCell();
@@ -60,17 +52,36 @@ export class Boost implements Contract {
         });
     }
 
+    async sendSetBoostJettonWallet(
+        provider: ContractProvider,
+        via: Sender,
+        walletAddress: Address,
+        query_id: number = 0,
+    ) {
+        await provider.internal(via, {
+            value: Gas.set_boost_wallet_address,
+            sendMode: SendMode.PAY_GAS_SEPARATELY,
+            body: beginCell()
+                .storeUint(Opcodes.set_boost_wallet_address, 32)
+                .storeUint(query_id, 64)
+                .storeAddress(walletAddress)
+                .endCell(),
+        });
+    }
+
     async getBoostData(provider: ContractProvider) {
         const result = (await provider.get('get_boost_data', [])).stack;
         return {
             init: result.readNumber(),
+            poolAddress: result.readAddress(),
+            boostIndex: result.readNumber(),
+            creatorAddress: result.readAddress(),
             startTime: result.readNumber(),
             endTime: result.readNumber(),
             snapshotItemIndex: result.readNumber(),
             snapshotTvl: result.readBigNumber(),
             totalRewards: result.readBigNumber(),
             farmingSpeed: result.readBigNumber(),
-            poolAddress: result.readAddress(),
             boostWalletAddress: result.readAddressOpt(),
         };
     }

@@ -92,7 +92,7 @@ int check_pool_content(slice pool_content) inline { ;; returns -1 if the pool co
                         .store_uint(0, 65)
                         .store_slice(my_address())
                         .store_ref(begin_cell().store_ref(storage::nft_item_code).store_ref(storage::boost_code).store_ref(storage::boost_helper_code).end_cell())
-                        .store_dict(new_dict())
+                        .store_uint(0, 32)
                         .store_slice(pool_content)
                     .end_cell();
 
