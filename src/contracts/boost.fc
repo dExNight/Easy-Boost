@@ -188,7 +188,7 @@ global cell storage::boost_helper_code;
         int user_percent = muldiv(user_locked_value, distributed_rewards_divider, storage::snapshot_tvl);
         int user_reward = muldiv(user_percent, storage::total_rewards, distributed_rewards_divider);
 
-        send_jettons(query_id, user_reward, from_user, my_address(), storage::boost_wallet_address, 0, mode::carry_remaining_gas, 0, null());
+        send_jettons(query_id, user_reward, from_user, from_user, storage::boost_wallet_address, 0, mode::carry_remaining_gas, 0, null());
         storage::total_rewards -= user_reward;
         save_data();
         return ();
