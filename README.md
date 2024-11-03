@@ -5,7 +5,7 @@
 
 ## Boost Mechanics and Workflow
 
-1. **Boost Initialization**: A boost is created by user or token owner. Boost creator specifies the boost duration and total token rewards supply. Only users that had active staking positions before creation of the boost are eligible to claim boost rewards
+1. **Boost Initialization**: A boost is created by user or token owner. Boost creator specifies the boost duration, initializes it and deposits token rewards. Only users that had active staking positions before creation of the boost are eligible to claim boost rewards
 
 2. **Boost Expiration**: When the specified end time elapses, the boost concludes, and rewards become available to claim for eligible users
 
