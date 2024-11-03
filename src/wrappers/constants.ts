@@ -56,7 +56,7 @@ export const Gas = {
     stake: 100000000n, //  0.10  TON
     change_state_nft: 10000000n, //  0.01  TON
     claim_nft: 200000000n, //  0.20  TON
-    claim_boost_rewards: 300000000n, //  0.30  TON
+    claim_boost_rewards: 200000000n + 10000000n, // > 0.20  TON
     withdraw_nft: 300000000n, //  0.30  TON
     min_tons_for_storage: 50000000n, //  0.05  TON
     add_boost: 100000000n, //  0.10   TON

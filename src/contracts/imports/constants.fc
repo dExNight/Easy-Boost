@@ -43,7 +43,7 @@ const int gas::claim_nft = 200000000;  ;; 0.20  TON
 const int gas::withdraw_nft = 300000000;  ;; 0.30  TON
 const int gas::min_tons_for_storage = 50000000;   ;; 0.05  TON
 const int gas::add_boost = 100000000;  ;; 0.10  TON
-const int gas::claim_boost_rewards = 300000000;  ;; 0.30  TON
+const int gas::claim_boost_rewards = 200000000;  ;; 0.20  TON
 const int gas::receive_commissions = gas::jetton_transfer * 3 + 10000000;
 const int gas::send_commissions = gas::jetton_transfer * 4;
 
