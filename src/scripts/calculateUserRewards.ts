@@ -4,8 +4,8 @@ import { NftItem } from '../wrappers/NftItem';
 import { StakingPool } from '../wrappers/StakingPool';
 import { timestamp } from '../wrappers/utils';
 
-const STAKING_POOL_ADDRESS: Address = Address.parse('kQAAd06tUCjTN_ZXZwbjgAyNktLPl_c2xcgjq3C-P4NlNf0Z');
-const STAKE_NFT_ITEM_ADDRESS: Address = Address.parse('kQC_2w2cC2l1UUvALUqdAg6qUQ8SV7kTuQUmCDip86UifBxH');
+const STAKING_POOL_ADDRESS: Address = Address.parse('kQAK9Lt-QUiw4p3HHtfLEp11MUPkM8JJA5ChVthQag-9ZBKj');
+const STAKE_NFT_ITEM_ADDRESS: Address = Address.parse('kQAMkASZO10lehG86gzrr_q5UVmemosu4EKzLZWPkJ1Kt1er');
 
 function mulDiv(num1: bigint, num2: bigint, num3: bigint): bigint {
     return (num1 * num2) / num3;
@@ -24,6 +24,7 @@ export async function run(provider: NetworkProvider) {
         lastTvl,
         distributedRewards: poolDistributedRewards,
         farmingSpeed,
+        rewardsBalance,
     } = await stakingPool.getStorageData();
 
     const time_now: number = timestamp();

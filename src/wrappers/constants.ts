@@ -44,6 +44,7 @@ export const Opcodes = {
 
     // Boost
     top_up_jetton_balance: 0x343a0057,
+    set_boost_wallet_address: 0x3b3b3b3b,
 };
 
 export const Gas = {
@@ -55,11 +56,11 @@ export const Gas = {
     stake: 100000000n, //  0.10  TON
     change_state_nft: 10000000n, //  0.01  TON
     claim_nft: 200000000n, //  0.20  TON
-    claim_boost_rewards: 200000000n, //  0.20  TON
+    claim_boost_rewards: 200000000n + 10000000n, // > 0.20  TON
     withdraw_nft: 300000000n, //  0.30  TON
     min_tons_for_storage: 50000000n, //  0.05  TON
     add_boost: 100000000n, //  0.10   TON
-
+    set_boost_wallet_address: 50000000n, //  0.05  TON
     receive_commissions: 225000000n, //  0.225 TON
     send_commissions: 270000000n, //  0.27  TON
 };

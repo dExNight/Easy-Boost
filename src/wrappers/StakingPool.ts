@@ -78,7 +78,7 @@ export function stakingPoolConfigToCell(config: StakingPoolConfig) {
                     .storeRef(config.boostHelperCode)
                     .endCell(),
             )
-            .storeDict(null)
+            .storeUint(0, 32)
             .storeSlice(pool_content.beginParse())
             .endCell(),
         poolContent: pool_content,
@@ -154,7 +154,6 @@ export class StakingPool implements Contract {
         opts: {
             startTime: number | bigint;
             endTime: number | bigint;
-            boostWalletAddress: Address;
             queryId?: number;
         },
     ) {
@@ -166,7 +165,6 @@ export class StakingPool implements Contract {
                 .storeUint(opts.queryId ?? 0, 64)
                 .storeUint(opts.startTime, 32)
                 .storeUint(opts.endTime, 32)
-                .storeAddress(opts.boostWalletAddress) // calculated jetton address of boost contract
                 .endCell(),
         });
     }
@@ -330,6 +328,7 @@ export class StakingPool implements Contract {
             collectionContent: result.readCell(),
             boostCode: result.readCell(),
             boostHelperCode: result.readCell(),
+            nextBoostIndex: result.readNumber(),
             lastTvl: result.readBigNumber(),
             distributedRewards: result.readBigNumber(),
             minLockPeriod: result.readNumber(),
@@ -347,11 +346,11 @@ export class StakingPool implements Contract {
         };
     }
 
-    async getBoosts(provider: ContractProvider): Promise<Address[]> {
-        const result = (await provider.get('get_boosts', [])).stack;
-        const dict = result.readCell();
-        const dict_s = dict.beginParse();
-        const boosts = dict_s.loadDictDirect(Dictionary.Keys.Uint(8), Dictionary.Values.Address());
-        return boosts.values();
+    async getBoost(provider: ContractProvider, boost_index: number): Promise<Address> {
+        const params = new TupleBuilder();
+        params.writeNumber(boost_index);
+        const result = (await provider.get('get_boost', params.build())).stack;
+
+        return result.readAddress();
     }
 }

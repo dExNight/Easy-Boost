@@ -3,21 +3,15 @@
     throw_unless(333, wc == workchain);
 }
 
-cell calculate_boost_stateinit(cell boost_code, int start_time, int end_time, int snapshot_item_index, int snapshot_tvl, slice pool_address, slice boost_wallet_address, cell item_code, cell boost_helper_code) inline {
+cell calculate_boost_stateinit(cell boost_code, slice pool_address, int boost_index, cell item_code, cell boost_helper_code) inline {
     return begin_cell()
         .store_uint(0, 2)
         .store_dict(boost_code)
         .store_dict(
         begin_cell()
                 .store_uint(0, 1) ;; init?
-                .store_uint(start_time, 32)
-                .store_uint(end_time, 32)
-                .store_uint(snapshot_item_index, 32)
-                .store_coins(snapshot_tvl)
-                .store_coins(0) ;; total_rewards
-                .store_coins(0) ;; farming_speed
                 .store_slice(pool_address)
-                .store_slice(boost_wallet_address)
+                .store_uint(boost_index, 32)
                 .store_ref(item_code)
                 .store_ref(boost_helper_code)
             .end_cell()
@@ -26,7 +20,7 @@ cell calculate_boost_stateinit(cell boost_code, int start_time, int end_time, in
     .end_cell();
 }
 
-slice calculate_boost_address(cell boost_code, cell state_init) inline {
+slice calculate_boost_address(cell state_init) inline {
     return begin_cell()
         .store_uint(4, 3)
         .store_int(0, 8)  
