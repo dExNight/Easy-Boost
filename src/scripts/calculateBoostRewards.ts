@@ -4,8 +4,8 @@ import { Boost } from '../wrappers/Boost';
 import { timestamp } from '../wrappers/utils';
 import { StakingPool } from '../wrappers/StakingPool';
 
-const BOOST_ADDRESS: Address = Address.parse('kQA40zG_tOv54SPPQhK7tKRVMcQTrUcrOgYh9hWmg3jzsuRS');
-const STAKING_POOL_ADDRESS: Address = Address.parse('kQAUmk_6zJgzstxUbGzh3TANRElcO1SbGoiPW7yeXnMZs2JV');
+const BOOST_ADDRESS: Address = Address.parse('kQAKTrAsPrVXfvjAsfbPbQ6We5HKHaL7Wclv67NIgqCbqu1q');
+const STAKING_POOL_ADDRESS: Address = Address.parse('kQAK9Lt-QUiw4p3HHtfLEp11MUPkM8JJA5ChVthQag-9ZBKj');
 
 const hour: number = 3600;
 

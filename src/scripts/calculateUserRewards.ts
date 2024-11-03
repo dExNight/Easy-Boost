@@ -4,8 +4,8 @@ import { NftItem } from '../wrappers/NftItem';
 import { StakingPool } from '../wrappers/StakingPool';
 import { timestamp } from '../wrappers/utils';
 
-const STAKING_POOL_ADDRESS: Address = Address.parse('kQAUmk_6zJgzstxUbGzh3TANRElcO1SbGoiPW7yeXnMZs2JV');
-const STAKE_NFT_ITEM_ADDRESS: Address = Address.parse('kQD6IEKPL82zD5kfcg5bxAj6qTvBxOJjuoCRvT8S9zueApCh');
+const STAKING_POOL_ADDRESS: Address = Address.parse('kQAK9Lt-QUiw4p3HHtfLEp11MUPkM8JJA5ChVthQag-9ZBKj');
+const STAKE_NFT_ITEM_ADDRESS: Address = Address.parse('kQAMkASZO10lehG86gzrr_q5UVmemosu4EKzLZWPkJ1Kt1er');
 
 function mulDiv(num1: bigint, num2: bigint, num3: bigint): bigint {
     return (num1 * num2) / num3;
