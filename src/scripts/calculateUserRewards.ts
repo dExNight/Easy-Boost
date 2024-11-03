@@ -24,6 +24,7 @@ export async function run(provider: NetworkProvider) {
         lastTvl,
         distributedRewards: poolDistributedRewards,
         farmingSpeed,
+        rewardsBalance,
     } = await stakingPool.getStorageData();
 
     const time_now: number = timestamp();
@@ -43,5 +44,6 @@ export async function run(provider: NetworkProvider) {
     );
 
     console.log('Current farming speed:', fromNano(farmingSpeed));
+    console.log('Remaining pool rewards:', fromNano(rewardsBalance));
     console.log('User rewards for now:', fromNano(userRewards));
 }
