@@ -2,9 +2,9 @@ import { Address } from '@ton/core';
 import { NetworkProvider } from '@ton/blueprint';
 import { NftItem } from '../wrappers/NftItem';
 
-const STAKE_NFT_ITEM_ADDRESS: Address = Address.parse('kQC_2w2cC2l1UUvALUqdAg6qUQ8SV7kTuQUmCDip86UifBxH');
+const STAKE_NFT_ITEM_ADDRESS: Address = Address.parse('kQD6IEKPL82zD5kfcg5bxAj6qTvBxOJjuoCRvT8S9zueApCh');
 
-const BOOST_ADDRESS: Address = Address.parse('kQBEj8gHb_HKF_SBu741-HoV2Lo0gFcSL6uHpOhkCw7bS0cE');
+const BOOST_ADDRESS: Address = Address.parse('kQA40zG_tOv54SPPQhK7tKRVMcQTrUcrOgYh9hWmg3jzsuRS');
 
 export async function run(provider: NetworkProvider) {
     const nft = provider.open(NftItem.createFromAddress(STAKE_NFT_ITEM_ADDRESS));
