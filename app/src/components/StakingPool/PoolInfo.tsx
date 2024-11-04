@@ -3,6 +3,8 @@ import { PoolStorage } from "../../hooks/useStakingPool";
 import { fromNano } from "@ton/core";
 import { formatTimestampToUTC, normalizeNumber, timestamp } from "../../utils";
 import { isMainnet } from "../../config";
+import { JettonMaster } from "../../hooks/useTonCenter";
+import PoolValue from "./Value";
 
 const formatTimeLeft = (seconds: number): string => {
   const days = Math.floor(seconds / (3600 * 24));
@@ -22,9 +24,14 @@ const formatTimeLeft = (seconds: number): string => {
 export interface PoolInfoProps {
   address: string;
   poolData: PoolStorage;
+  poolJetton: JettonMaster;
 }
 
-const PoolInfo: React.FC<PoolInfoProps> = ({ address, poolData }) => {
+const PoolInfo: React.FC<PoolInfoProps> = ({
+  address,
+  poolData,
+  poolJetton,
+}) => {
   const [timeBeforeEnd, setTimeBeforeEnd] = useState<number>(
     poolData ? poolData.endTime - timestamp() : 0
   );
@@ -38,59 +45,47 @@ const PoolInfo: React.FC<PoolInfoProps> = ({ address, poolData }) => {
   }, []);
 
   return (
-    <div className="flex flex-col items-center justify-center mt-8">
-      <h2 className="text-2xl font-bold mb-4 text-center">
-        Staking Pool Information
-      </h2>
+    <div className="flex flex-col items-center justify-center mt-8 gap-4">
+      <h2 className="text-2xl font-bold text-center">Staking Pool</h2>
+      <div className="flex flex-row items-center bg-gray-800 p-6 rounded-lg shadow-md w-full max-w-2xl mx-auto overflow-auto">
+        <div className="w-[50%] h-full">
+          <p className="text-lg font-bold mb-1">Jetton Information</p>
+          <PoolValue key_="Name" value_={poolJetton.jetton_content.name} />
+          <PoolValue key_="Symbol" value_={poolJetton.jetton_content.symbol} />
+          <PoolValue key_="Description" value_={poolJetton.jetton_content.description} />
+        </div>
+        <div className="w-[50%] h-full flex flex-row-reverse">
+          <img
+            className="max-w-[50%] rounded-lg"
+            src={poolJetton.jetton_content.image}
+          />
+        </div>
+      </div>
       <div className="bg-gray-800 p-6 rounded-lg shadow-md w-full max-w-2xl mx-auto overflow-auto">
         <div className="space-y-2">
-          <p className="text-lg">
-            <span className="font-semibold">Staking pool: </span> {address}
-          </p>
-
-          <p className="text-lg">
-            <span className="font-semibold">Total rewards: </span>
-            {normalizeNumber(fromNano(poolData.rewardsBalance))}
-          </p>
-          <p className="text-lg">
-            <span className="font-semibold">Current speed: </span>
-            {normalizeNumber(fromNano(poolData.farmingSpeed))}
-          </p>
-          <p className="text-lg">
-            <span className="font-semibold">Current TVL: </span>
-            {normalizeNumber(fromNano(poolData.lastTvl))}
-          </p>
-          <p className="text-lg">
-            <span className="font-semibold">Minimum deposit: </span>
-            {normalizeNumber(fromNano(poolData.minimumDeposit))}
-          </p>
-
-          <p className="text-lg">
-            <span className="font-semibold">Time before end: </span>
-            {formatTimeLeft(timeBeforeEnd)}
-          </p>
-          <p className="text-lg">
-            <span className="font-semibold">Start time: </span>
-            {formatTimestampToUTC(poolData.startTime)}
-          </p>
-          <p className="text-lg">
-            <span className="font-semibold">End time: </span>
-            {formatTimestampToUTC(poolData.endTime)}
-          </p>
-
-          <p className="text-lg">
-            <span className="font-semibold">Total stakers: </span>
-            {poolData.nextItemIndex}
-          </p>
-          <p className="text-lg">
-            <span className="font-semibold">Total number of boosts: </span>
-            {poolData.nextBoostIndex}
-          </p>
-
-          <p className="text-lg">
-            <span className="font-semibold">Creator address: </span>
-            {poolData.creatorAddress.toString({ testOnly: !isMainnet })}
-          </p>
+          <PoolValue key_="Address" value_={address} />
+          <PoolValue
+            key_="Total rewards"
+            value_={`${normalizeNumber(fromNano(poolData.rewardsBalance))} ${poolJetton.jetton_content.symbol}`}
+          />
+          <PoolValue
+            key_="Current speed"
+            value_={`${normalizeNumber(fromNano(poolData.farmingSpeed))} ${poolJetton.jetton_content.symbol}`}
+          />
+          <PoolValue
+            key_="Current TVL"
+            value_={`${normalizeNumber(fromNano(poolData.lastTvl))} ${poolJetton.jetton_content.symbol}`}
+          />
+          <PoolValue
+            key_="Minimum deposit"
+            value_={`${normalizeNumber(fromNano(poolData.minimumDeposit))} ${poolJetton.jetton_content.symbol}`}
+          />
+          <PoolValue key_="Time before end" value_={formatTimeLeft(timeBeforeEnd)} />
+          <PoolValue key_="Start time" value_={formatTimestampToUTC(poolData.startTime)} />
+          <PoolValue key_="End time" value_={formatTimestampToUTC(poolData.endTime)} />
+          <PoolValue key_="Total stakers" value_={poolData.nextItemIndex} />
+          <PoolValue key_="Total number of boosts" value_={poolData.nextBoostIndex} />
+          <PoolValue key_="Creator address" value_={poolData.creatorAddress.toString({ testOnly: !isMainnet })} />
         </div>
       </div>
     </div>

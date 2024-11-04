@@ -25,3 +25,11 @@ export const formatTimestampToUTC = (timestamp: number): string => {
   const date = new Date(timestamp * 1000);
   return date.toUTCString();
 };
+
+export function ipfsToHttp(url: string | undefined | null): string {
+  return url
+    ? url.startsWith("ipfs://")
+      ? url.replace("ipfs://", "https://ipfs.io/ipfs/")
+      : url
+    : "";
+}

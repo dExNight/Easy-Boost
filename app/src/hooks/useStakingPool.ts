@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { StakingPool } from "../contracts/StakingPool";
 import { useTonClient } from "./useTonClient";
 import { Address, Cell, OpenedContract } from "@ton/core";
+import TonCenterV3, { JettonMaster } from "./useTonCenter";
 
 export interface PoolStorage {
   init: number;
@@ -51,4 +52,43 @@ export function usePoolStorage(address: string | undefined) {
   }, [address, client]);
 
   return poolStorage;
+}
+
+export function usePoolJettons(
+  jettonWalletAddress: Address | null | undefined
+) {
+  const client = useTonClient();
+  const [jettonMetadata, setJettonMetadata] = useState<null | JettonMaster>(
+    null
+  );
+
+  const tonclient: TonCenterV3 = new TonCenterV3();
+
+  useEffect(() => {
+    const fetchJettonMaster = async () => {
+      if (!client || !jettonWalletAddress) return;
+
+      try {
+        const { stack } = await client.runMethod(
+          jettonWalletAddress,
+          "get_wallet_data"
+        );
+        stack.readBigNumber();
+        stack.readAddress();
+        const jetton_master_address = stack.readAddress();
+
+        const metadata: JettonMaster | undefined =
+          await tonclient.getJettonMetadata(
+            jetton_master_address.toRawString()
+          );
+        setJettonMetadata(metadata ? metadata : null);
+      } catch (error) {
+        console.error("Error fetching sale data:", error);
+      }
+    };
+
+    fetchJettonMaster();
+  }, [jettonWalletAddress, jettonMetadata, client]);
+
+  return jettonMetadata;
 }
