@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { isValidAddress } from "../../utils";
+import { base } from "../../config";
 
 const SearchBar: React.FC = () => {
   const [address, setAddress] = useState("");
@@ -10,7 +11,7 @@ const SearchBar: React.FC = () => {
     if (event.key === "Enter") {
       if (isValidAddress(address)) {
         setAddress("");
-        navigate(`/pool/${address}`);
+        navigate(`${base}/pool/${address}`);
       } else {
         alert("Invalid address");
       }

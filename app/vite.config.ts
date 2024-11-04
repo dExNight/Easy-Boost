@@ -5,5 +5,5 @@ import { nodePolyfills } from "vite-plugin-node-polyfills";
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), nodePolyfills()],
-  base: "/",
+  base: "/Easy-Boost/",
 });

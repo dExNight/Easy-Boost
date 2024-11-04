@@ -2,10 +2,11 @@ import ErrorPage from "./pages/Error";
 import Header from "./components/Header";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import PoolPage from "./pages/StakingPool";
+import { base } from "./config";
 
 const router = createBrowserRouter([
   {
-    path: "/",
+    path: `${base}`,
     element: (
       <>
         <Header />
@@ -14,7 +15,7 @@ const router = createBrowserRouter([
     errorElement: <ErrorPage />,
   },
   {
-    path: "/pool/:address",
+    path: `${base}/pool/:address`,
     element: (
       <>
         <Header />

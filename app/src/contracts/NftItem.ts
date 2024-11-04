@@ -14,6 +14,7 @@ import { Gas, Opcodes } from "./constants";
 export type NftItemConfig = {};
 
 export function nftItemConfigToCell(config: NftItemConfig): Cell {
+  console.log("nftItemConfigToCell", config);
   return beginCell().endCell();
 }
 
