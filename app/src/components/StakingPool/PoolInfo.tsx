@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { PoolStorage } from "../../hooks/useStakingPool";
 import { fromNano } from "@ton/core";
 import { formatTimestampToUTC, normalizeNumber, timestamp } from "../../utils";
@@ -14,7 +14,7 @@ const formatTimeLeft = (seconds: number): string => {
   if (days > 0) parts.push(`${days}d`);
   if (hours > 0) parts.push(`${hours}h`);
   if (minutes > 0) parts.push(`${minutes}m`);
-  if (secs > 0) parts.push(`${secs}s`);
+  parts.push(`${secs}s`);
 
   return parts.join(" ");
 };
@@ -25,8 +25,17 @@ export interface PoolInfoProps {
 }
 
 const PoolInfo: React.FC<PoolInfoProps> = ({ address, poolData }) => {
-  let timeBeforeEnd = poolData ? poolData.endTime - timestamp() : 0;
-  timeBeforeEnd = timeBeforeEnd < 0 ? 0 : timeBeforeEnd;
+  const [timeBeforeEnd, setTimeBeforeEnd] = useState<number>(
+    poolData ? poolData.endTime - timestamp() : 0
+  );
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTimeBeforeEnd((prevTime) => (prevTime > 0 ? prevTime - 1 : 0));
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div className="flex flex-col items-center justify-center mt-8">
