@@ -1,13 +1,15 @@
 import { TonConnectButton } from "@tonconnect/ui-react";
 import { useNavigate } from "react-router-dom";
 import { useTonConnectContext } from "../contexts/TonConnectContext";
+import SearchBar from "./Utils/SearchBar";
 
 function Header() {
   const navigate = useNavigate();
   const { connected, tonConnectUI } = useTonConnectContext();
 
   return (
-    <header className="sticky top-[-1px] w-full h-[10vh] flex flex-nowrap justify-between p-4 bg-default z-50 box-border">
+    <header className="w-full h-[10vh] flex flex-nowrap justify-between items-center p-4">
+      <SearchBar />
       <TonConnectButton />
     </header>
   );
