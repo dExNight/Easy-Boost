@@ -17,8 +17,6 @@ const PoolPage: React.FC = () => {
   );
 
   const isLoading: boolean = !poolData || !poolJetton;
-  console.log("Pooldata:", poolData);
-  console.log("PoolJetton:", poolJetton);
 
   return (
     <div className="relative flex justify-center items-center w-full h-full">
