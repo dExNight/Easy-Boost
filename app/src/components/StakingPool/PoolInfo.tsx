@@ -107,15 +107,6 @@ const PoolInfo: React.FC<PoolInfoProps> = ({
             key_="End time"
             value_={formatTimestampToUTC(poolData.endTime)}
           />
-          <PoolValue key_="Total stakers" value_={poolData.nextItemIndex} />
-          <PoolValue
-            key_="Total number of boosts"
-            value_={poolData.nextBoostIndex}
-          />
-          <PoolValue
-            key_="Creator address"
-            value_={poolData.creatorAddress.toString({ testOnly: !isMainnet })}
-          />
         </div>
       </div>
       <div className="bg-gray-800 p-6 rounded-lg shadow-md w-full max-w-2xl mx-auto overflow-auto">
