@@ -34,7 +34,7 @@ export async function run(provider: NetworkProvider) {
         Boost.createFromConfig(
             {
                 poolAddress: stakingPool.address,
-                boostIndex: 0,
+                boostIndex: nextBoostIndex,
                 nftItemCode: await compile('NftItem'),
                 boostHelperCode: await compile('BoostHelper'),
             },
@@ -57,6 +57,8 @@ export async function run(provider: NetworkProvider) {
         await provider.waitForDeploy(boost.address, 30);
 
         await boost.sendSetBoostJettonWallet(provider.sender(), boostWallet.address);
+
+        await sleep(10000);
     }
 
     await boostCreatorWallet.sendTransfer(provider.sender(), {
