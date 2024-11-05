@@ -3,6 +3,7 @@ import Header from "./components/Header";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import PoolPage from "./pages/StakingPool";
 import { base } from "./config";
+import PoolAdminPage from "./pages/PoolsAdmin";
 
 const router = createBrowserRouter([
   {
@@ -10,6 +11,7 @@ const router = createBrowserRouter([
     element: (
       <>
         <Header />
+        <PoolAdminPage />
       </>
     ),
     errorElement: <ErrorPage />,

@@ -83,4 +83,19 @@ export class PoolsAdmin implements Contract {
         .endCell(),
     });
   }
+
+  async getCreationFee(provider: ContractProvider): Promise<bigint> {
+    const result = (await provider.get("get_creation_fee", [])).stack;
+
+    return result.readBigNumber();
+  }
+
+  async getOwners(provider: ContractProvider) {
+    const result = (await provider.get("get_owners", [])).stack;
+
+    return {
+      teamAddress: result.readAddress(),
+      conversionAddress: result.readAddress(),
+    };
+  }
 }

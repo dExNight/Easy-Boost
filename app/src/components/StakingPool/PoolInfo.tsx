@@ -4,7 +4,7 @@ import { fromNano } from "@ton/core";
 import { formatTimestampToUTC, normalizeNumber, timestamp } from "../../utils";
 import { isMainnet } from "../../config";
 import { JettonMaster } from "../../hooks/useTonCenter";
-import PoolValue from "./Value";
+import PoolValue from "../Utils/Value";
 
 const formatTimeLeft = (seconds: number): string => {
   const days = Math.floor(seconds / (3600 * 24));
