@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import SpinnerElement from "../components/Utils/Spinner";
 
 const BoostPage: React.FC = () => {
-  const { address, boostIndex } = useParams<{
+  const { boostIndex } = useParams<{
     address: string;
     boostIndex: string;
   }>();
