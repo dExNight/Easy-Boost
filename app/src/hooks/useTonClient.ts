@@ -4,7 +4,6 @@ import { useAsyncInitialize } from "./useAsyncInitialize";
 import { isMainnet } from "../config";
 
 export function useTonClient() {
-  console.log("is mainnet", isMainnet);
   return useAsyncInitialize(
     async () =>
       new TonClient({
