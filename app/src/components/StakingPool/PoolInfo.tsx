@@ -5,6 +5,8 @@ import { formatTimestampToUTC, normalizeNumber, timestamp } from "../../utils";
 import { isMainnet } from "../../config";
 import { JettonMaster } from "../../hooks/useTonCenter";
 import PoolValue from "../Utils/Value";
+import BoostSelectionModal from "./BoostSelection";
+import { Button } from "react-bootstrap";
 
 const formatTimeLeft = (seconds: number): string => {
   const days = Math.floor(seconds / (3600 * 24));
@@ -25,13 +27,16 @@ export interface PoolInfoProps {
   address: string;
   poolData: PoolStorage;
   poolJetton: JettonMaster;
+  handleBoostNavigate: (boostIndex: number) => void;
 }
 
 const PoolInfo: React.FC<PoolInfoProps> = ({
   address,
   poolData,
   poolJetton,
+  handleBoostNavigate,
 }) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [timeBeforeEnd, setTimeBeforeEnd] = useState<number>(
     poolData ? poolData.endTime - timestamp() : 0
   );
@@ -77,7 +82,7 @@ const PoolInfo: React.FC<PoolInfoProps> = ({
             key_="Current speed"
             value_={`${normalizeNumber(fromNano(poolData.farmingSpeed))} ${
               poolJetton.jetton_content.symbol
-            }`}
+            }/d`}
           />
           <PoolValue
             key_="Current TVL"
@@ -122,6 +127,15 @@ const PoolInfo: React.FC<PoolInfoProps> = ({
           />
         </div>
       </div>
+      <Button onClick={() => setIsModalOpen(true)} className="w-full min-h-12 rounded-2xl bg-slate-600">
+        Boosts
+      </Button>
+      <BoostSelectionModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        poolData={poolData}
+        handleBoostNavigate={handleBoostNavigate}
+      />
     </div>
   );
 };

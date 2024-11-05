@@ -4,6 +4,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import PoolPage from "./pages/StakingPool";
 import { base } from "./config";
 import PoolAdminPage from "./pages/PoolsAdmin";
+import BoostPage from "./pages/Boost";
 
 const router = createBrowserRouter([
   {
@@ -22,6 +23,16 @@ const router = createBrowserRouter([
       <>
         <Header />
         <PoolPage />
+      </>
+    ),
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: `${base}/pool/:address/boost/:boostIndex`,
+    element: (
+      <>
+        <Header />
+        <BoostPage />
       </>
     ),
     errorElement: <ErrorPage />,
