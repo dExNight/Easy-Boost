@@ -65,6 +65,26 @@ interface JettonMastersResponse {
   jetton_masters: JettonMaster[];
 }
 
+export interface CollectionContent {
+  image?: string;
+  name?: string;
+  description?: string;
+  social_links?: string[];
+  uri?: string;
+}
+
+export interface NftCollection {
+  address: string;
+  owner_address: string;
+  next_item_index: string;
+  collection_content: CollectionContent;
+  code_hash: string;
+}
+
+interface NftCollectionsResponse {
+  nft_collections: NftCollection[];
+}
+
 export default class TonCenterV3 {
   base_url: string;
 
@@ -166,5 +186,51 @@ export default class TonCenterV3 {
         jetton_content: metadata,
       };
     }
+
+    return jettonMaster;
+  }
+
+  async getCollectionMetadata(
+    address: string
+  ): Promise<NftCollection | undefined> {
+    const url = new URL(`${this.base_url}/nft/collections`);
+    const params = new URLSearchParams({
+      collection_address: address,
+      limit: "1",
+      offset: "0",
+    });
+    url.search = params.toString();
+    const response = await fetch(url.toString());
+    const result: NftCollectionsResponse | null = await response.json();
+
+    if (!result) {
+      return undefined;
+    }
+
+    const collection: NftCollection | undefined = result.nft_collections[0];
+
+    if (collection.collection_content.uri) {
+      const metadata_uri: string = ipfsToHttp(
+        collection.collection_content.uri
+      );
+      let metadata: CollectionContent = await this.getJsonFile(metadata_uri);
+
+      metadata.description = metadata.description ? metadata.description : "";
+      metadata.name = metadata.name ? metadata.name : "No name";
+      metadata.image = metadata.image ? metadata.image : "";
+      metadata.social_links = metadata.social_links
+        ? metadata.social_links
+        : [];
+
+      return {
+        address: collection.address,
+        owner_address: collection.owner_address,
+        next_item_index: collection.next_item_index,
+        collection_content: metadata,
+        code_hash: collection.code_hash,
+      };
+    }
+
+    return collection;
   }
 }

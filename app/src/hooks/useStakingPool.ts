@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { StakingPool } from "../contracts/StakingPool";
 import { useTonClient } from "./useTonClient";
 import { Address, Cell, OpenedContract } from "@ton/core";
-import TonCenterV3, { JettonMaster } from "./useTonCenter";
+import TonCenterV3, { JettonMaster, NftCollection } from "./useTonCenter";
 
 export interface PoolStorage {
   init: number;
@@ -91,4 +91,29 @@ export function usePoolJettons(
   }, [jettonWalletAddress, jettonMetadata, client]);
 
   return jettonMetadata;
+}
+
+export function usePoolMetadata(address: string | null | undefined) {
+  const client = useTonClient();
+  const [collection, setCollection] = useState<null | NftCollection>(null);
+
+  const tonclient: TonCenterV3 = new TonCenterV3();
+
+  useEffect(() => {
+    const fetchCollectionMetadata = async () => {
+      if (!client || !address) return;
+
+      try {
+        const metadata: NftCollection | undefined =
+          await tonclient.getCollectionMetadata(address);
+        setCollection(metadata ? metadata : null);
+      } catch (error) {
+        console.error("Error fetching sale data:", error);
+      }
+    };
+
+    fetchCollectionMetadata();
+  }, [address, collection, client]);
+
+  return collection;
 }
