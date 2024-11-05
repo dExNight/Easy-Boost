@@ -42,6 +42,15 @@ const PoolsAdminInfo: React.FC<PoolsAdminInfoProps> = ({
           />
         </div>
       </div>
+
+      <div className="bg-gray-800 p-6 rounded-lg shadow-md w-full max-w-2xl mx-auto overflow-auto">
+        <div className="space-y-2 flex flex-col justify-center items-center">
+          <p className="text-base font-bold text-center">
+            Always available staking pool
+          </p>
+          <p>kQA4XlS_SzOpGbkoV0FzJEdsR8rdNf4gu2g_GaJFhCOB3JVt</p>
+        </div>
+      </div>
     </div>
   );
 };
