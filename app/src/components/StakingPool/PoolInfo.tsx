@@ -7,6 +7,7 @@ import { JettonMaster } from "../../hooks/useTonCenter";
 import PoolValue from "../Utils/Value";
 import BoostSelectionModal from "./BoostSelection";
 import { Button } from "react-bootstrap";
+import ProgressBar from "./ProgressBar";
 
 const formatTimeLeft = (seconds: number): string => {
   const days = Math.floor(seconds / (3600 * 24));
@@ -72,17 +73,12 @@ const PoolInfo: React.FC<PoolInfoProps> = ({
       </div>
       <div className="bg-gray-800 p-6 rounded-lg shadow-md w-full max-w-2xl mx-auto overflow-auto">
         <div className="space-y-2">
-          <PoolValue
-            key_="Total rewards"
-            value_={`${normalizeNumber(fromNano(poolData.rewardsBalance))} ${
-              poolJetton.jetton_content.symbol
-            }`}
-          />
-          <PoolValue
-            key_="Current speed"
-            value_={`${normalizeNumber(fromNano(poolData.farmingSpeed))} ${
-              poolJetton.jetton_content.symbol
-            }/d`}
+          <ProgressBar
+            currentSpeed={poolData.farmingSpeed}
+            totalAmount={poolData.rewardsBalance}
+            startTime={poolData.startTime}
+            endTime={poolData.endTime}
+            symbol={poolJetton.jetton_content.symbol}
           />
           <PoolValue
             key_="Current TVL"
@@ -127,7 +123,11 @@ const PoolInfo: React.FC<PoolInfoProps> = ({
           />
         </div>
       </div>
-      <Button onClick={() => setIsModalOpen(true)} className="w-full min-h-12 rounded-2xl bg-slate-600">
+      <Button
+        onClick={() => setIsModalOpen(true)}
+        className="w-full min-h-12 rounded-2xl border-0 hover:bg-slate-600"
+        variant="primary"
+      >
         Boosts
       </Button>
       <BoostSelectionModal

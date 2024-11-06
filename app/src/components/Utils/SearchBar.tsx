@@ -19,13 +19,13 @@ const SearchBar: React.FC = () => {
   };
 
   return (
-    <div className="flex justify-center items-center w-full p-4">
+    <div className="flex justify-center items-center w-full">
       <input
         type="text"
         value={address}
         onChange={(e) => setAddress(e.target.value)}
         onKeyUp={handleKeyUp}
-        className="rounded-3xl bg-gray-800 w-full p-4"
+        className="rounded-3xl bg-gray-800 w-full p-3"
         placeholder="Enter address"
       />
     </div>
