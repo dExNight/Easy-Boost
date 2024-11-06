@@ -1,5 +1,5 @@
 import { TonCenterUrl } from "../constants";
-import { ipfsToHttp } from "../utils";
+import { ipfsToHttp, sleep } from "../utils";
 
 type Dict = Record<string, any>;
 
@@ -93,11 +93,28 @@ export default class TonCenterV3 {
   }
 
   private async getJsonFile(url: string): Promise<any> {
-    const response = await fetch(url);
-    return await response.json();
+    const maxRetries = 5;
+    let retries = 0;
+    let response;
+
+    while (retries < maxRetries) {
+      try {
+        response = await fetch(url);
+
+        if (response.ok) {
+          break;
+        }
+        await sleep(1200);
+      } catch (error) {}
+    }
+    return await response?.json();
   }
 
   async getNftItemInfo(address: string): Promise<NftItemResponse | null> {
+    const maxRetries = 5;
+    let retries = 0;
+    let response;
+
     const url = new URL(`${this.base_url}/nft/items`);
     const params = new URLSearchParams({
       address: address,
@@ -106,8 +123,18 @@ export default class TonCenterV3 {
     });
     url.search = params.toString();
 
-    const response = await fetch(url.toString());
-    const result: NftItems | null = await response.json();
+    while (retries < maxRetries) {
+      try {
+        response = await fetch(url.toString());
+
+        if (response.ok) {
+          break;
+        }
+        await sleep(1200);
+      } catch (error) {}
+    }
+
+    const result: NftItems | null = await response?.json();
 
     if (!result) {
       return null;
@@ -150,6 +177,10 @@ export default class TonCenterV3 {
   }
 
   async getJettonMetadata(address: string): Promise<JettonMaster | undefined> {
+    const maxRetries = 5;
+    let retries = 0;
+    let response;
+
     const url = new URL(`${this.base_url}/jetton/masters`);
     const params = new URLSearchParams({
       address: address,
@@ -158,8 +189,18 @@ export default class TonCenterV3 {
     });
     url.search = params.toString();
 
-    const response = await fetch(url.toString());
-    const result: JettonMastersResponse | null = await response.json();
+    while (retries < maxRetries) {
+      try {
+        response = await fetch(url.toString());
+
+        if (response.ok) {
+          break;
+        }
+        await sleep(1200);
+      } catch (error) {}
+    }
+
+    const result: JettonMastersResponse | null = await response?.json();
 
     if (!result) {
       return undefined;
@@ -193,6 +234,10 @@ export default class TonCenterV3 {
   async getCollectionMetadata(
     address: string
   ): Promise<NftCollection | undefined> {
+    const maxRetries = 5;
+    let retries = 0;
+    let response;
+
     const url = new URL(`${this.base_url}/nft/collections`);
     const params = new URLSearchParams({
       collection_address: address,
@@ -200,8 +245,19 @@ export default class TonCenterV3 {
       offset: "0",
     });
     url.search = params.toString();
-    const response = await fetch(url.toString());
-    const result: NftCollectionsResponse | null = await response.json();
+
+    while (retries < maxRetries) {
+      try {
+        response = await fetch(url.toString());
+
+        if (response.ok) {
+          break;
+        }
+        await sleep(1200);
+      } catch (error) {}
+    }
+
+    const result: NftCollectionsResponse | null = await response?.json();
 
     if (!result) {
       return undefined;

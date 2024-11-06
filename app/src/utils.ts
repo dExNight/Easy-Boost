@@ -34,7 +34,6 @@ export function ipfsToHttp(url: string | undefined | null): string {
     : "";
 }
 
-
 export const formatTimeLeft = (seconds: number): string => {
   const days = Math.floor(seconds / (3600 * 24));
   const hours = Math.floor((seconds % (3600 * 24)) / 3600);
@@ -49,3 +48,7 @@ export const formatTimeLeft = (seconds: number): string => {
 
   return parts.join(" ");
 };
+
+export function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
