@@ -2,6 +2,9 @@ import React from "react";
 import { useParams } from "react-router-dom";
 import SpinnerElement from "../components/Utils/Spinner";
 import { useBoostStorage } from "../hooks/useBoost";
+import BoostInfo from "../components/Boost/PoolInfo";
+import { JettonMaster } from "../hooks/useTonCenter";
+import { usePoolJettons } from "../hooks/useStakingPool";
 
 const BoostPage: React.FC = () => {
   const { address, boostIndex } = useParams<{
@@ -10,13 +13,22 @@ const BoostPage: React.FC = () => {
   }>();
   const boostIndexNumber: number = Number(boostIndex);
   const data = useBoostStorage(address, boostIndexNumber);
+  const boostJetton: JettonMaster | null = usePoolJettons(
+    data.boostData?.boostWalletAddress
+  );
 
-  const isLoading: boolean = !data;
+  const isLoading: boolean = !data || !boostJetton || !address;
 
   return (
     <div className="relative flex justify-center items-center w-full h-full">
       {isLoading && <SpinnerElement />}
-      {!isLoading && <>{data!.address?.toString()}</>}
+      {!isLoading && (
+        <BoostInfo
+          address={data!.address!}
+          boostData={data!.boostData!}
+          boostJetton={boostJetton!}
+        />
+      )}
     </div>
   );
 };

@@ -15,17 +15,13 @@ export type BoostStorage = {
   snapshotTvl: bigint;
   totalRewards: bigint;
   farmingSpeed: bigint;
-};
-
-export type BoostStorageResponse = {
-  address: Address | null;
-  boostData: BoostStorage | null;
+  boostWalletAddress: Address | null;
 };
 
 export function useBoostStorage(
   poolAddress: string | undefined,
   boostIndex: number | undefined
-): BoostStorageResponse | null {
+) {
   const client = useTonClient();
   const [boostStorage, setBoostStorage] = useState<null | BoostStorage>(null);
   const [boostAddress, setBoostAddress] = useState<null | Address>(null);
@@ -60,6 +56,7 @@ export function useBoostStorage(
           snapshotTvl,
           totalRewards,
           farmingSpeed,
+          boostWalletAddress,
         } = await boost.getBoostData();
 
         setBoostStorage({
@@ -73,6 +70,7 @@ export function useBoostStorage(
           snapshotTvl: snapshotTvl,
           totalRewards: totalRewards,
           farmingSpeed: farmingSpeed,
+          boostWalletAddress: boostWalletAddress,
         });
       } catch (error) {
         console.error("Error fetching sale data:", error);

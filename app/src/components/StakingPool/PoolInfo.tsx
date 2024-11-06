@@ -7,22 +7,8 @@ import { JettonMaster } from "../../hooks/useTonCenter";
 import PoolValue from "../Utils/Value";
 import BoostSelectionModal from "./BoostSelection";
 import { Button } from "react-bootstrap";
-import ProgressBar from "./ProgressBar";
-
-const formatTimeLeft = (seconds: number): string => {
-  const days = Math.floor(seconds / (3600 * 24));
-  const hours = Math.floor((seconds % (3600 * 24)) / 3600);
-  const minutes = Math.floor((seconds % 3600) / 60);
-  const secs = Math.floor(seconds % 60);
-
-  const parts = [];
-  if (days > 0) parts.push(`${days}d`);
-  if (hours > 0) parts.push(`${hours}h`);
-  if (minutes > 0) parts.push(`${minutes}m`);
-  parts.push(`${secs}s`);
-
-  return parts.join(" ");
-};
+import ProgressBar from "../Utils/ProgressBar";
+import { formatTimeLeft } from "../../utils";
 
 export interface PoolInfoProps {
   address: string;
