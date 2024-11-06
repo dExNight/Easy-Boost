@@ -36,12 +36,9 @@ export interface NftItems {
 
 export interface NftItemResponse {
   address: string;
-  init: boolean;
-  index: string;
+  index: number;
   collection_address: string;
   owner_address: string;
-  metadata?: Metadata;
-  collection: NftItemCollection;
 }
 
 interface JettonContent {
@@ -110,16 +107,28 @@ export default class TonCenterV3 {
     return await response?.json();
   }
 
-  async getNftItemInfo(address: string): Promise<NftItemResponse | null> {
+  async getNftItemsInfo(
+    data: {
+      nft_address?: string;
+      owner_address?: string;
+      collection_address?: string;
+    },
+    limit: number = 1,
+    offset: number = 0
+  ): Promise<NftItemResponse[] | null> {
     const maxRetries = 5;
     let retries = 0;
     let response;
 
     const url = new URL(`${this.base_url}/nft/items`);
     const params = new URLSearchParams({
-      address: address,
-      limit: "1",
-      offset: "0",
+      address: data.nft_address ? data.nft_address : "",
+      owner_address: data.owner_address ? data.owner_address : "",
+      collection_address: data.collection_address
+        ? data.collection_address
+        : "",
+      limit: `${limit}`,
+      offset: `${offset}`,
     });
     url.search = params.toString();
 
@@ -140,40 +149,19 @@ export default class TonCenterV3 {
       return null;
     }
 
-    const nft: NftItem = result.nft_items[0];
+    const nfts: NftItem[] = result.nft_items;
+    const returnNfts: NftItemResponse[] = [];
 
-    if (!nft.content["uri"]) {
-      if (!nft.content["name"]) {
-        return null;
-      }
-
-      return {
+    for (let nft of nfts) {
+      returnNfts.push({
         address: nft.address,
-        init: nft.init,
-        index: nft.index,
+        index: parseInt(nft.index),
         collection_address: nft.collection_address,
         owner_address: nft.owner_address,
-        metadata: {
-          name: nft.content["name"],
-          description: nft.content["description"],
-          image: nft.content["image"],
-        },
-        collection: nft.collection,
-      };
+      });
     }
 
-    const metadata_uri: string = ipfsToHttp(nft.content["uri"]);
-    const metadata: Metadata = await this.getJsonFile(metadata_uri);
-
-    return {
-      address: nft.address,
-      init: nft.init,
-      index: nft.index,
-      collection_address: nft.collection_address,
-      owner_address: nft.owner_address,
-      metadata: metadata,
-      collection: nft.collection,
-    };
+    return returnNfts;
   }
 
   async getJettonMetadata(address: string): Promise<JettonMaster | undefined> {

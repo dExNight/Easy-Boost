@@ -1,15 +1,17 @@
 import React, { useEffect, useState } from "react";
-import { PoolStorage } from "../../hooks/useStakingPool";
+import { PoolStorage, usePoolPositions } from "../../hooks/useStakingPool";
 import { fromNano, Sender } from "@ton/core";
 import { formatTimestampToUTC, normalizeNumber, timestamp } from "../../utils";
 import { isMainnet } from "../../config";
-import { JettonMaster } from "../../hooks/useTonCenter";
+import { JettonMaster, NftItemResponse } from "../../hooks/useTonCenter";
 import PoolValue from "../Utils/Value";
 import BoostSelectionModal from "./BoostSelection";
 import ProgressBar from "../Utils/ProgressBar";
 import { formatTimeLeft } from "../../utils";
 import { Button } from "react-bootstrap";
 import StakeModal from "./StakeModal";
+import { useTonConnectContext } from "../../contexts/TonConnectContext";
+import Positions from "./Positions";
 
 export interface PoolInfoProps {
   address: string;
@@ -26,10 +28,17 @@ const PoolInfo: React.FC<PoolInfoProps> = ({
   handleBoostNavigate,
   stake,
 }) => {
+  const { sender } = useTonConnectContext();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isStakeModalOpen, setIsStakeModalOpen] = useState(false);
+  const [isPositionsModalOpen, setIsPositionsModalOpen] = useState(false);
   const [timeBeforeEnd, setTimeBeforeEnd] = useState<number>(
     poolData ? poolData.endTime - timestamp() : 0
+  );
+
+  const userPositions: NftItemResponse[] | undefined = usePoolPositions(
+    address,
+    sender.address
   );
 
   useEffect(() => {
@@ -127,6 +136,20 @@ const PoolInfo: React.FC<PoolInfoProps> = ({
       >
         Stake
       </Button>
+
+      {userPositions && userPositions.length > 0 && (
+        <Button
+          onClick={() => setIsPositionsModalOpen(true)}
+          className="w-full min-h-12 rounded-2xl border-0 hover:bg-slate-600"
+          variant="success"
+        >
+          My positions
+        </Button>
+      )}
+      {(!userPositions || userPositions.length === 0) && (
+        <p>Connect wallet to see your positions</p>
+      )}
+
       <BoostSelectionModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
@@ -139,6 +162,13 @@ const PoolInfo: React.FC<PoolInfoProps> = ({
         poolData={poolData}
         poolJetton={poolJetton}
         stake={stake}
+      />
+      <Positions
+        isOpen={isPositionsModalOpen}
+        setIsModalOpen={setIsPositionsModalOpen}
+        nfts={userPositions}
+        decimals={Number(poolJetton.jetton_content.decimals!)}
+        symbol={poolJetton.jetton_content.symbol!}
       />
     </div>
   );

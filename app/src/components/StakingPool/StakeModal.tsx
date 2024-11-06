@@ -4,6 +4,7 @@ import { JettonMaster } from "../../hooks/useTonCenter";
 import { useTonConnectContext } from "../../contexts/TonConnectContext";
 import { Sender } from "@ton/core";
 import { PoolStorage } from "../../hooks/useStakingPool";
+import { fromJettonDecimals, toJettonDecimals } from "../../utils";
 
 interface StakeModalProps {
   isOpen: boolean;
@@ -11,14 +12,6 @@ interface StakeModalProps {
   poolData: PoolStorage;
   poolJetton: JettonMaster;
   stake: (amount: bigint, duration: number, sender: Sender) => void;
-}
-
-function fromJettonDecimals(value: bigint, decimals: number): number {
-  return Number(value) / 10 ** decimals;
-}
-
-function toJettonDecimals(value: number, decimals: number): bigint {
-  return BigInt(value * 10 ** decimals);
 }
 
 const StakeModal: React.FC<StakeModalProps> = ({

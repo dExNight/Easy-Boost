@@ -52,3 +52,11 @@ export const formatTimeLeft = (seconds: number): string => {
 export function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
+
+export function fromJettonDecimals(value: bigint, decimals: number): number {
+  return Number(value) / 10 ** decimals;
+}
+
+export function toJettonDecimals(value: number, decimals: number): bigint {
+  return BigInt(value * 10 ** decimals);
+}

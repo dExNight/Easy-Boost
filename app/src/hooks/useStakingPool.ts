@@ -2,7 +2,11 @@ import { useEffect, useState } from "react";
 import { StakingPool } from "../contracts/StakingPool";
 import { useTonClient } from "./useTonClient";
 import { Address, Cell, OpenedContract, Sender, toNano } from "@ton/core";
-import TonCenterV3, { JettonMaster, NftCollection } from "./useTonCenter";
+import TonCenterV3, {
+  JettonMaster,
+  NftCollection,
+  NftItemResponse,
+} from "./useTonCenter";
 import { JettonMaster as JettonMsaterWrapper } from "@ton/ton";
 import { JettonWallet } from "../contracts/JettonWallet";
 import { buildStakeJettonsPoolPayload } from "../contracts/payload";
@@ -161,4 +165,43 @@ export function usePoolMetadata(address: string | null | undefined) {
   }, [address, collection, client]);
 
   return collection;
+}
+
+export function usePoolPositions(
+  poolAddress: Address | string,
+  ownerAddress: Address | string | undefined
+) {
+  const client = useTonClient();
+  const [userPositions, setUserPositions] = useState<NftItemResponse[]>([]);
+  const tonclient: TonCenterV3 = new TonCenterV3();
+
+  poolAddress =
+    poolAddress instanceof Address ? poolAddress.toRawString() : poolAddress;
+  ownerAddress =
+    ownerAddress instanceof Address ? ownerAddress.toRawString() : ownerAddress;
+
+  useEffect(() => {
+    const fetchUserPositions = async () => {
+      if (!client || !poolAddress || !ownerAddress) return;
+
+      try {
+        const positions: NftItemResponse[] | null =
+          await tonclient.getNftItemsInfo(
+            {
+              collection_address: poolAddress,
+              owner_address: ownerAddress,
+            },
+            20,
+            0
+          );
+        setUserPositions(positions ? positions : []);
+      } catch (error) {
+        console.error("Error fetching sale data:", error);
+      }
+    };
+
+    fetchUserPositions();
+  }, [poolAddress, ownerAddress, client]);
+
+  return userPositions;
 }

@@ -166,7 +166,7 @@ export class NftItem implements Contract {
       index: result.readNumber(),
       collectionAddress: result.readAddress(),
       ownerAddress: result.readAddress(),
-      lockedValue: result.readNumber(),
+      lockedValue: result.readBigNumber(),
       startTime: result.readNumber(),
       unlockTime: result.readNumber(),
       withdrawedAt: result.readNumber(),
