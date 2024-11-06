@@ -1,10 +1,6 @@
 import React from "react";
 import { useParams } from "react-router-dom";
-import {
-  usePoolStorage,
-  PoolStorage,
-  usePoolJettons,
-} from "../hooks/useStakingPool";
+import { usePoolStorage, usePoolJettons } from "../hooks/useStakingPool";
 import SpinnerElement from "../components/Utils/Spinner";
 import PoolInfo from "../components/StakingPool/PoolInfo";
 import { JettonMaster } from "../hooks/useTonCenter";
@@ -18,12 +14,12 @@ const PoolPage: React.FC = () => {
     navigate(`/pool/${address}/boost/${boostIndex}`);
   };
 
-  const poolData: PoolStorage | null = usePoolStorage(address);
+  const { poolStorage, stake } = usePoolStorage(address);
   const poolJetton: JettonMaster | null = usePoolJettons(
-    poolData?.lockWalletAddress
+    poolStorage?.lockWalletAddress
   );
 
-  const isLoading: boolean = !poolData || !poolJetton;
+  const isLoading: boolean = !poolStorage || !poolJetton;
 
   return (
     <div className="relative flex justify-center items-center w-full h-full">
@@ -31,9 +27,10 @@ const PoolPage: React.FC = () => {
       {!isLoading && (
         <PoolInfo
           address={address!}
-          poolData={poolData!}
+          poolData={poolStorage!}
           poolJetton={poolJetton!}
           handleBoostNavigate={handleBoostNavigate}
+          stake={stake}
         />
       )}
     </div>

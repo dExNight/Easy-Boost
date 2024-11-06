@@ -1,20 +1,22 @@
 import React, { useEffect, useState } from "react";
 import { PoolStorage } from "../../hooks/useStakingPool";
-import { fromNano } from "@ton/core";
+import { fromNano, Sender } from "@ton/core";
 import { formatTimestampToUTC, normalizeNumber, timestamp } from "../../utils";
 import { isMainnet } from "../../config";
 import { JettonMaster } from "../../hooks/useTonCenter";
 import PoolValue from "../Utils/Value";
 import BoostSelectionModal from "./BoostSelection";
-import { Button } from "react-bootstrap";
 import ProgressBar from "../Utils/ProgressBar";
 import { formatTimeLeft } from "../../utils";
+import { Button } from "react-bootstrap";
+import StakeModal from "./StakeModal";
 
 export interface PoolInfoProps {
   address: string;
   poolData: PoolStorage;
   poolJetton: JettonMaster;
   handleBoostNavigate: (boostIndex: number) => void;
+  stake: (amount: bigint, duration: number, sender: Sender) => void;
 }
 
 const PoolInfo: React.FC<PoolInfoProps> = ({
@@ -22,8 +24,10 @@ const PoolInfo: React.FC<PoolInfoProps> = ({
   poolData,
   poolJetton,
   handleBoostNavigate,
+  stake,
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isStakeModalOpen, setIsStakeModalOpen] = useState(false);
   const [timeBeforeEnd, setTimeBeforeEnd] = useState<number>(
     poolData ? poolData.endTime - timestamp() : 0
   );
@@ -116,11 +120,25 @@ const PoolInfo: React.FC<PoolInfoProps> = ({
       >
         Boosts
       </Button>
+      <Button
+        onClick={() => setIsStakeModalOpen(true)}
+        className="w-full min-h-12 rounded-2xl border-0 hover:bg-slate-600"
+        variant="success"
+      >
+        Stake
+      </Button>
       <BoostSelectionModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         poolData={poolData}
         handleBoostNavigate={handleBoostNavigate}
+      />
+      <StakeModal
+        isOpen={isStakeModalOpen}
+        setIsModalOpen={setIsStakeModalOpen}
+        poolData={poolData}
+        poolJetton={poolJetton}
+        stake={stake}
       />
     </div>
   );
