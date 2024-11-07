@@ -5,6 +5,7 @@ import { NftItem } from "../contracts/NftItem";
 import { NftItemResponse } from "./useTonCenter";
 
 export type NftItemStorage = {
+  index: number;
   address: string;
   lockedValue: bigint;
   startTime: number;
@@ -31,6 +32,7 @@ export function useNftItems(nfts: NftItemResponse[]) {
           const nftItem = client.open(itemContract) as OpenedContract<NftItem>;
 
           const {
+            index,
             lockedValue,
             startTime,
             unlockTime,
@@ -39,6 +41,7 @@ export function useNftItems(nfts: NftItemResponse[]) {
           } = await nftItem.getStorageData();
 
           return {
+            index: index,
             address: nft.address,
             lockedValue,
             startTime,
@@ -88,6 +91,30 @@ export function useNftItems(nfts: NftItemResponse[]) {
             : Address.parse(nftAddress);
         const nftItem = client.open(NftItem.createFromAddress(nftAddress));
         await nftItem.sendWithdrawNft(sender, {});
+      } catch (error) {
+        console.error("Error sending transactions", error);
+      }
+    },
+    claimBoost: async (
+      nftAddress: Address | string,
+      boostAddress: Address | string,
+      sender: Sender
+    ) => {
+      if (!client || !sender.address) {
+        console.error("Nft item contract is not initialized");
+        return;
+      }
+      try {
+        nftAddress =
+          nftAddress instanceof Address
+            ? nftAddress
+            : Address.parse(nftAddress);
+        boostAddress =
+          boostAddress instanceof Address
+            ? boostAddress
+            : Address.parse(boostAddress);
+        const nftItem = client.open(NftItem.createFromAddress(nftAddress));
+        await nftItem.sendClaimBoostRewards(sender, boostAddress, {});
       } catch (error) {
         console.error("Error sending transactions", error);
       }

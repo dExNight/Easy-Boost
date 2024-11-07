@@ -80,14 +80,16 @@ export class NftItem implements Contract {
     provider: ContractProvider,
     via: Sender,
     boostAddress: Address,
-    queryId?: number
+    opts: {
+      queryId?: number;
+    }
   ) {
     await provider.internal(via, {
       value: Gas.claim_boost_rewards,
       sendMode: SendMode.PAY_GAS_SEPARATELY,
       body: beginCell()
         .storeUint(Opcodes.claim_boost_rewards, 32)
-        .storeUint(queryId ?? 0, 64)
+        .storeUint(opts.queryId ?? 0, 64)
         .storeAddress(boostAddress)
         .endCell(),
     });
