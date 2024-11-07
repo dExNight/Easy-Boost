@@ -3,6 +3,7 @@ import { Boost } from "../contracts/Boost";
 import { useTonClient } from "./useTonClient";
 import { Address, OpenedContract } from "@ton/core";
 import { StakingPool } from "../contracts/StakingPool";
+import { withRetry } from "../utils";
 
 export type BoostStorage = {
   init: boolean;
@@ -45,32 +46,34 @@ export function useBoostStorage(
       const boost = client.open(contract) as OpenedContract<Boost>;
 
       try {
-        const {
-          init,
-          poolAddress,
-          boostIndex,
-          creatorAddress,
-          startTime,
-          endTime,
-          snapshotItemIndex,
-          snapshotTvl,
-          totalRewards,
-          farmingSpeed,
-          boostWalletAddress,
-        } = await boost.getBoostData();
+        await withRetry(async () => {
+          const {
+            init,
+            poolAddress,
+            boostIndex,
+            creatorAddress,
+            startTime,
+            endTime,
+            snapshotItemIndex,
+            snapshotTvl,
+            totalRewards,
+            farmingSpeed,
+            boostWalletAddress,
+          } = await boost.getBoostData();
 
-        setBoostStorage({
-          init: init == 1,
-          poolAddress: poolAddress,
-          boostIndex: boostIndex,
-          creatorAddress: creatorAddress,
-          startTime: startTime,
-          endTime: endTime,
-          snapshotItemIndex: snapshotItemIndex,
-          snapshotTvl: snapshotTvl,
-          totalRewards: totalRewards,
-          farmingSpeed: farmingSpeed,
-          boostWalletAddress: boostWalletAddress,
+          setBoostStorage({
+            init: init == 1,
+            poolAddress: poolAddress,
+            boostIndex: boostIndex,
+            creatorAddress: creatorAddress,
+            startTime: startTime,
+            endTime: endTime,
+            snapshotItemIndex: snapshotItemIndex,
+            snapshotTvl: snapshotTvl,
+            totalRewards: totalRewards,
+            farmingSpeed: farmingSpeed,
+            boostWalletAddress: boostWalletAddress,
+          });
         });
       } catch (error) {
         console.error("Error fetching sale data:", error);

@@ -1,5 +1,48 @@
 import { Address } from "@ton/core";
 
+interface RetryConfig {
+  maxRetries: number;
+  initialDelay: number;
+  maxDelay: number;
+  backoffFactor: number;
+}
+
+const defaultRetryConfig: RetryConfig = {
+  maxRetries: 3,
+  initialDelay: 1000,
+  maxDelay: 3000,
+  backoffFactor: 2,
+};
+
+export async function withRetry<T>(
+  operation: () => Promise<T>,
+  config: RetryConfig = defaultRetryConfig
+): Promise<T> {
+  let lastError: Error | null = null;
+  let delay = config.initialDelay;
+
+  for (let attempt = 0; attempt <= config.maxRetries; attempt++) {
+    try {
+      return await operation();
+    } catch (error: any) {
+      lastError = error;
+      console.warn(`Attempt ${attempt + 1} failed:`, error.message);
+
+      if (attempt === config.maxRetries) {
+        throw new Error(
+          `Failed after ${config.maxRetries} attempts. Last error: ${lastError?.message}`
+        );
+      }
+
+      // Ждем перед следующей попыткой
+      await new Promise((resolve) => setTimeout(resolve, delay));
+      delay = Math.min(delay * config.backoffFactor, config.maxDelay);
+    }
+  }
+
+  throw lastError;
+}
+
 export function isValidAddress(address: string): boolean {
   try {
     Address.parse(address);

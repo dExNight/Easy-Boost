@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { PoolsAdmin } from "../contracts/PoolsAdmin";
 import { useTonClient } from "./useTonClient";
 import { Address, OpenedContract } from "@ton/core";
+import { withRetry } from "../utils";
 
 export type PoolsAdminStorage = {
   creationFee: bigint;
@@ -22,13 +23,16 @@ export function usePoolsAdminStorage(address: string | undefined) {
       const poolsAdmin = client.open(contract) as OpenedContract<PoolsAdmin>;
 
       try {
-        const creationFee: bigint = await poolsAdmin.getCreationFee();
-        const { teamAddress, conversionAddress } = await poolsAdmin.getOwners();
+        await withRetry(async () => {
+          const creationFee: bigint = await poolsAdmin.getCreationFee();
+          const { teamAddress, conversionAddress } =
+            await poolsAdmin.getOwners();
 
-        setPoolsAdminStorage({
-          creationFee,
-          teamAddress,
-          conversionAddress,
+          setPoolsAdminStorage({
+            creationFee,
+            teamAddress,
+            conversionAddress,
+          });
         });
       } catch (error) {
         console.error("Error fetching sale data:", error);

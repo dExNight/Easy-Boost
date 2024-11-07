@@ -10,6 +10,7 @@ import TonCenterV3, {
 import { JettonMaster as JettonMsaterWrapper } from "@ton/ton";
 import { JettonWallet } from "../contracts/JettonWallet";
 import { buildStakeJettonsPoolPayload } from "../contracts/payload";
+import { withRetry } from "../utils";
 
 export interface PoolStorage {
   init: number;
@@ -51,8 +52,10 @@ export function usePoolStorage(address: string | undefined) {
       setStakingPool(pool);
 
       try {
-        const data: PoolStorage = await pool.getStorageData();
-        setPoolStorage(data);
+        await withRetry(async () => {
+          const data: PoolStorage = await pool.getStorageData();
+          setPoolStorage(data);
+        });
       } catch (error) {
         console.error("Error fetching sale data:", error);
       }
@@ -118,19 +121,21 @@ export function usePoolJettons(
       if (!client || !jettonWalletAddress) return;
 
       try {
-        const { stack } = await client.runMethod(
-          jettonWalletAddress,
-          "get_wallet_data"
-        );
-        stack.readBigNumber();
-        stack.readAddress();
-        const jetton_master_address = stack.readAddress();
-
-        const metadata: JettonMaster | undefined =
-          await tonclient.getJettonMetadata(
-            jetton_master_address.toRawString()
+        await withRetry(async () => {
+          const { stack } = await client.runMethod(
+            jettonWalletAddress,
+            "get_wallet_data"
           );
-        setJettonMetadata(metadata ? metadata : null);
+          stack.readBigNumber();
+          stack.readAddress();
+          const jetton_master_address = stack.readAddress();
+
+          const metadata: JettonMaster | undefined =
+            await tonclient.getJettonMetadata(
+              jetton_master_address.toRawString()
+            );
+          setJettonMetadata(metadata ? metadata : null);
+        });
       } catch (error) {
         console.error("Error fetching sale data:", error);
       }
