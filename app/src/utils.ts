@@ -60,3 +60,7 @@ export function fromJettonDecimals(value: bigint, decimals: number): number {
 export function toJettonDecimals(value: number, decimals: number): bigint {
   return BigInt(value * 10 ** decimals);
 }
+
+export function mulDiv(num1: bigint, num2: bigint, num3: bigint): bigint {
+  return (num1 * num2) / num3;
+}

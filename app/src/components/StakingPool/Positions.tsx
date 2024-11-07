@@ -1,14 +1,27 @@
 import React from "react";
 import { NftItemResponse } from "../../hooks/useTonCenter";
 import PoolValue from "../Utils/Value";
-import { useNftItems } from "../../hooks/useNftItems";
-import { formatTimestampToUTC } from "../../utils";
+import { NftItemStorage, useNftItems } from "../../hooks/useNftItems";
+import {
+  formatTimestampToUTC,
+  mulDiv,
+  normalizeNumber,
+  timestamp,
+} from "../../utils";
 import { fromJettonDecimals } from "../../utils";
 import SpinnerElement from "../Utils/Spinner";
+import { Button } from "react-bootstrap";
+import { useTonConnectContext } from "../../contexts/TonConnectContext";
+import { PoolStorage } from "../../hooks/useStakingPool";
+import {
+  distributedRewardsDivider,
+  farmingSpeedDivider,
+} from "../../constants";
 
 export interface PositionsProps {
   isOpen: boolean;
   setIsModalOpen: (state: boolean) => void;
+  poolData: PoolStorage;
   nfts: NftItemResponse[];
   decimals: number;
   symbol: string;
@@ -17,11 +30,35 @@ export interface PositionsProps {
 const Positions: React.FC<PositionsProps> = ({
   isOpen,
   setIsModalOpen,
+  poolData,
   nfts,
   decimals,
   symbol,
 }) => {
-  const { itemsStorage, loading, error } = useNftItems(nfts);
+  const { sender } = useTonConnectContext();
+  const { itemsStorage, claim, withdraw } = useNftItems(nfts);
+  const loading = !itemsStorage;
+
+  const isWithdrawOpen = (item: NftItemStorage) => {
+    return timestamp() >= item.unlockTime;
+  };
+
+  const availableRewards = (item: NftItemStorage) => {
+    const recalculatedDistributedRewards =
+      poolData.distributedRewards +
+      mulDiv(
+        BigInt(timestamp() - poolData.lastUpdateTime) * poolData.farmingSpeed,
+        distributedRewardsDivider,
+        farmingSpeedDivider * poolData.lastTvl
+      );
+
+    const userRewards = mulDiv(
+      recalculatedDistributedRewards - item.distributedRewards,
+      BigInt(item.lockedValue),
+      distributedRewardsDivider
+    );
+    return userRewards;
+  };
 
   return (
     <div
@@ -40,15 +77,13 @@ const Positions: React.FC<PositionsProps> = ({
           </div>
         )}
 
-        {error && <div className="text-red-500 py-2">Error: {error}</div>}
-
         <div className="flex flex-col gap-4">
           {itemsStorage.map((item) => (
             <div
               key={item.address}
-              className="flex items-center bg-gray-700 p-4 rounded-lg"
+              className="flex flex-row items-center bg-gray-700 p-4 rounded-lg"
             >
-              <div className="w-full gap-4">
+              <div className="w-full">
                 <PoolValue
                   key_="Locked Value"
                   value_={`${fromJettonDecimals(
@@ -64,6 +99,34 @@ const Positions: React.FC<PositionsProps> = ({
                   key_="Unlock Time"
                   value_={formatTimestampToUTC(item.unlockTime)}
                 />
+                <PoolValue
+                  key_="Available to claim"
+                  value_={`${normalizeNumber(
+                    fromJettonDecimals(availableRewards(item), decimals)
+                  )} ${symbol}`}
+                  keyClass="text-green-500 font-normal"
+                  valueClass="text-white font-normal"
+                />
+              </div>
+              <div className="flex flex-col gap-3 justify-center">
+                <Button
+                  variant="success"
+                  onClick={async () => {
+                    await claim(item.address, sender);
+                  }}
+                >
+                  Claim
+                </Button>
+                {isWithdrawOpen(item) && (
+                  <Button
+                    variant="danger"
+                    onClick={async () => {
+                      await withdraw(item.address, sender);
+                    }}
+                  >
+                    Withdraw
+                  </Button>
+                )}
               </div>
             </div>
           ))}

@@ -166,6 +166,7 @@ const PoolInfo: React.FC<PoolInfoProps> = ({
       <Positions
         isOpen={isPositionsModalOpen}
         setIsModalOpen={setIsPositionsModalOpen}
+        poolData={poolData}
         nfts={userPositions}
         decimals={Number(poolJetton.jetton_content.decimals!)}
         symbol={poolJetton.jetton_content.symbol!}
