@@ -129,26 +129,32 @@ const PoolInfo: React.FC<PoolInfoProps> = ({
       >
         Boosts
       </Button>
-      <Button
-        onClick={() => setIsStakeModalOpen(true)}
-        className="w-full min-h-12 rounded-2xl border-0 hover:bg-slate-600"
-        variant="success"
-      >
-        Stake
-      </Button>
 
-      {userPositions && userPositions.length > 0 && (
-        <Button
-          onClick={() => setIsPositionsModalOpen(true)}
-          className="w-full min-h-12 rounded-2xl border-0 hover:bg-slate-600"
-          variant="success"
-        >
-          My positions
-        </Button>
+      {sender.address && (
+        <>
+          <Button
+            onClick={() => setIsStakeModalOpen(true)}
+            className="w-full min-h-12 rounded-2xl border-0 hover:bg-slate-600"
+            variant="success"
+          >
+            Stake
+          </Button>
+          {userPositions && userPositions.length > 0 && (
+            <Button
+              onClick={() => setIsPositionsModalOpen(true)}
+              className="w-full min-h-12 rounded-2xl border-0 hover:bg-slate-600"
+              variant="success"
+            >
+              My positions
+            </Button>
+          )}
+          {(!userPositions || userPositions.length <= 0) && (
+            <p>No active positions</p>
+          )}
+        </>
       )}
-      {(!userPositions || userPositions.length === 0) && (
-        <p>Connect wallet to see your positions</p>
-      )}
+
+      {!sender.address && <p>Connect wallet to stake / view positions</p>}
 
       <BoostSelectionModal
         isOpen={isModalOpen}
