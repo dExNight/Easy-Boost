@@ -51,6 +51,22 @@ const Positions: React.FC<PositionsProps> = ({
   const isClaimOpened: boolean = timestamp() >= boostData.endTime;
   const loading = !itemsStorage;
 
+  if (eligibleItems.length === 0) {
+    return (
+      <div
+        className={`fixed bg-black bg-opacity-50 backdrop-blur-[10px] inset-0 flex items-center justify-center z-50 ${
+          isOpen ? "" : "hidden"
+        }`}
+      >
+        <div className="bg-gray-800 flex flex-col gap-4 p-6 rounded-lg shadow-md w-full max-w-[80%]">
+          <h2 className="w-full flex text-2xl font-bold justify-center">
+            No available rewards
+          </h2>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
       className={`fixed bg-black bg-opacity-50 backdrop-blur-[10px] inset-0 flex items-center justify-center z-50 ${
@@ -58,7 +74,9 @@ const Positions: React.FC<PositionsProps> = ({
       }`}
     >
       <div className="bg-gray-800 flex flex-col gap-4 p-6 rounded-lg shadow-md w-full max-w-[80%]">
-        <h2 className="text-2xl font-bold">Available rewards</h2>
+        <h2 className="w-full flex text-2xl font-bold justify-center">
+          Available rewards
+        </h2>
 
         <PoolValue key_="Total" value_={eligibleItems.length} />
 
