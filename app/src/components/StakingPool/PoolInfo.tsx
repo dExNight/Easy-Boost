@@ -64,6 +64,14 @@ const PoolInfo: React.FC<PoolInfoProps> = ({
     return () => clearInterval(interval);
   }, []);
 
+  let loading: boolean =
+    isCreationModalOpen ||
+    !nextBoostAddress ||
+    !createBoost ||
+    !initializeBoost ||
+    !CreateBoost;
+  loading = false; // or use eslint-disable-next-line
+
   return (
     <div className="flex flex-col items-center justify-center my-8 gap-4">
       <h2 className="text-2xl font-bold text-center">Staking Pool</h2>
@@ -145,7 +153,7 @@ const PoolInfo: React.FC<PoolInfoProps> = ({
         Boosts
       </Button>
 
-      {sender.address && (
+      {sender.address && !loading && (
         <>
           <Button
             onClick={() => setIsStakeModalOpen(true)}
@@ -200,13 +208,13 @@ const PoolInfo: React.FC<PoolInfoProps> = ({
         decimals={Number(poolJetton.jetton_content.decimals!)}
         symbol={poolJetton.jetton_content.symbol!}
       />
-      <CreateBoost
+      {/* <CreateBoost
         isOpen={isCreationModalOpen}
         setIsModalOpen={setIsCreationModalOpen}
         nextBoostAddress={nextBoostAddress}
         createBoost={createBoost}
         initializeBoost={initializeBoost}
-      />
+      /> */}
     </div>
   );
 };
