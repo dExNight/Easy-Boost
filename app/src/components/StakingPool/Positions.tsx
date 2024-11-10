@@ -66,7 +66,7 @@ const Positions: React.FC<PositionsProps> = ({
         isOpen ? "" : "hidden"
       }`}
     >
-      <div className="bg-gray-800 flex flex-col gap-4 p-6 rounded-lg shadow-md w-full max-w-[80%]">
+      <div className="bg-gray-800 flex flex-col gap-4 p-6 rounded-lg shadow-md w-full max-w-[80%] max-h-[80%] overflow-auto scrollbar-modern">
         <h2 className="text-2xl font-bold">Active positions</h2>
 
         <PoolValue key_="Total" value_={nfts.length} />

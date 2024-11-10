@@ -14,7 +14,8 @@ const PoolPage: React.FC = () => {
     navigate(`/pool/${address}/boost/${boostIndex}`);
   };
 
-  const { poolStorage, stake } = usePoolStorage(address);
+  const { poolStorage, stake, nextBoostAddress, createBoost, initializeBoost } =
+    usePoolStorage(address);
   const poolJetton: JettonMaster | null = usePoolJettons(
     poolStorage?.lockWalletAddress
   );
@@ -29,8 +30,11 @@ const PoolPage: React.FC = () => {
           address={address!}
           poolData={poolStorage!}
           poolJetton={poolJetton!}
+          nextBoostAddress={nextBoostAddress!}
           handleBoostNavigate={handleBoostNavigate}
           stake={stake}
+          createBoost={createBoost}
+          initializeBoost={initializeBoost}
         />
       )}
     </div>

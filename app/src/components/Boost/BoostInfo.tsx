@@ -24,8 +24,9 @@ const BoostInfo: React.FC<BoostInfoProps> = ({
   boostData,
   boostJetton,
 }) => {
-  const { sender } = useTonConnectContext();
+  const { connected } = useTonConnectContext();
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+
   const [timeBeforeEnd, setTimeBeforeEnd] = useState<number>(
     boostData ? boostData.endTime - timestamp() : 0
   );
@@ -107,13 +108,15 @@ const BoostInfo: React.FC<BoostInfoProps> = ({
         </div>
       </div>
 
-      {sender.address && <Button
-        onClick={() => setIsModalOpen(true)}
-        className="w-full min-h-12 rounded-2xl border-0 hover:bg-slate-600"
-        variant="primary"
-      >
-        Claim
-      </Button>}
+      {connected && (
+        <Button
+          onClick={() => setIsModalOpen(true)}
+          className="w-full min-h-12 rounded-2xl border-0 hover:bg-slate-600"
+          variant="primary"
+        >
+          Claim
+        </Button>
+      )}
 
       <Positions
         isOpen={isModalOpen}

@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer utilities {
+  .scrollbar-modern {
+    @apply scrollbar-thin scrollbar-thumb-white/60 scrollbar-track-transparent hover:scrollbar-thumb-white/80 scrollbar-thumb-rounded-full;
+  }
+}
+
 body {
   display: flex;
   background-color: rgb(20 20 20 / 1);

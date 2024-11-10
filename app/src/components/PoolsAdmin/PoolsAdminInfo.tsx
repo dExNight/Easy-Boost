@@ -1,18 +1,21 @@
 import React from "react";
-import { Address, fromNano } from "@ton/core";
-import { normalizeNumber } from "../../utils";
+import { Address } from "@ton/core";
+import { fromJettonDecimals, normalizeNumber } from "../../utils";
 import { isMainnet } from "../../config";
 import PoolValue from "../Utils/Value";
 import { PoolsAdminStorage } from "../../hooks/usePoolsAdmin";
+import { JettonMaster } from "../../hooks/useTonCenter";
 
 export interface PoolsAdminInfoProps {
   address: Address;
   poolsAdminData: PoolsAdminStorage;
+  poolsAdminJetton: JettonMaster;
 }
 
 const PoolsAdminInfo: React.FC<PoolsAdminInfoProps> = ({
   address,
   poolsAdminData,
+  poolsAdminJetton,
 }) => {
   return (
     <div className="flex flex-col items-center justify-center my-8 gap-4">
@@ -26,7 +29,12 @@ const PoolsAdminInfo: React.FC<PoolsAdminInfoProps> = ({
         <div className="space-y-2">
           <PoolValue
             key_="Creation fee"
-            value_={`${normalizeNumber(fromNano(poolsAdminData.creationFee))}`}
+            value_={`${normalizeNumber(
+              fromJettonDecimals(
+                poolsAdminData.creationFee,
+                Number(poolsAdminJetton.jetton_content.decimals)
+              )
+            )} ${poolsAdminJetton.jetton_content.symbol}`}
           />
           <PoolValue
             key_="Team address"

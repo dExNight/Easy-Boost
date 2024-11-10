@@ -1,16 +1,27 @@
 import { useEffect, useState } from "react";
 import { StakingPool } from "../contracts/StakingPool";
 import { useTonClient } from "./useTonClient";
-import { Address, Cell, OpenedContract, Sender, toNano } from "@ton/core";
+import {
+  Address,
+  beginCell,
+  Cell,
+  OpenedContract,
+  Sender,
+  toNano,
+} from "@ton/core";
 import TonCenterV3, {
   JettonMaster,
   NftCollection,
   NftItemResponse,
 } from "./useTonCenter";
-import { JettonMaster as JettonMsaterWrapper } from "@ton/ton";
+import { JettonMaster as JettonMsaterWrapper, TonClient } from "@ton/ton";
 import { JettonWallet } from "../contracts/JettonWallet";
 import { buildStakeJettonsPoolPayload } from "../contracts/payload";
-import { withRetry } from "../utils";
+import { timestamp, withRetry } from "../utils";
+import { Gas, Opcodes } from "../contracts/constants";
+import { day } from "../constants";
+import { Message, sendTransaction } from "./useTonConnectUI";
+import { useTonConnectContext } from "../contexts/TonConnectContext";
 
 export interface PoolStorage {
   init: number;
@@ -39,7 +50,11 @@ export interface PoolStorage {
 
 export function usePoolStorage(address: string | undefined) {
   const client = useTonClient();
+  const { tonConnectUI } = useTonConnectContext();
   const [poolStorage, setPoolStorage] = useState<null | PoolStorage>(null);
+  const [nextBoostAddress, setNextBoostAddress] = useState<null | Address>(
+    null
+  );
   const [stakingPool, setStakingPool] =
     useState<null | OpenedContract<StakingPool>>(null);
 
@@ -55,6 +70,11 @@ export function usePoolStorage(address: string | undefined) {
         await withRetry(async () => {
           const data: PoolStorage = await pool.getStorageData();
           setPoolStorage(data);
+
+          const nextBoostAddr: Address = await pool.getBoost(
+            data.nextBoostIndex
+          );
+          setNextBoostAddress(nextBoostAddr);
         });
       } catch (error) {
         console.error("Error fetching sale data:", error);
@@ -66,6 +86,7 @@ export function usePoolStorage(address: string | undefined) {
 
   return {
     poolStorage,
+    nextBoostAddress,
     stake: async (amount: bigint, duration: number, sender: Sender) => {
       if (!stakingPool || !poolStorage || !client || !sender.address) {
         console.error("Staking pool contract is not initialized");
@@ -99,6 +120,59 @@ export function usePoolStorage(address: string | undefined) {
           fwdPayload: buildStakeJettonsPoolPayload(duration),
           value: toNano("0.5"),
         });
+      } catch (error) {
+        console.error("Error sending transactions", error);
+      }
+    },
+    createBoost: async (boostDuration: number) => {
+      if (!client || !address || !nextBoostAddress) {
+        console.error("Boost is not initialized");
+        return;
+      }
+      try {
+        const now = timestamp();
+        const creationMsgBody = beginCell()
+          .storeUint(Opcodes.add_boost, 32)
+          .storeUint(0, 64)
+          .storeUint(now, 32)
+          .storeUint(now + boostDuration * day, 32)
+          .endCell();
+
+        const cretionMsg: Message = {
+          to: address,
+          amount: Gas.add_boost,
+          msg_body: creationMsgBody.toBoc().toString("base64"),
+        };
+
+        return await sendTransaction(tonConnectUI, [cretionMsg]);
+      } catch (error) {
+        console.error("Error sending transactions", error);
+      }
+    },
+    initializeBoost: async (
+      boostAddress: Address,
+      boostWalletAddress: Address
+    ) => {
+      if (!client || !address || !boostAddress || !boostWalletAddress) {
+        console.error("Boost is not initialized");
+        return;
+      }
+      try {
+        const addBoostWalletMsgBody = beginCell()
+          .storeUint(Opcodes.set_boost_wallet_address, 32)
+          .storeUint(0, 64)
+          .storeAddress(boostWalletAddress)
+          .endCell();
+
+        console.log("Sending with wallet:", boostWalletAddress.toString());
+
+        const addBoostWalletMsg: Message = {
+          to: boostAddress.toString(),
+          amount: Gas.set_boost_wallet_address,
+          msg_body: addBoostWalletMsgBody.toBoc().toString("base64"),
+        };
+
+        return await sendTransaction(tonConnectUI, [addBoostWalletMsg]);
       } catch (error) {
         console.error("Error sending transactions", error);
       }
@@ -145,6 +219,68 @@ export function usePoolJettons(
   }, [jettonWalletAddress, client]);
 
   return jettonMetadata;
+}
+
+export async function getJettonWallet(
+  client: TonClient,
+  minterAddress: Address,
+  address: Address
+): Promise<Address | null> {
+  await withRetry(async () => {
+    const minterContract: JettonMsaterWrapper =
+      JettonMsaterWrapper.create(minterAddress);
+    const jettonMinter = client.open(minterContract);
+    const walletAddress = await jettonMinter.getWalletAddress(address);
+
+    return walletAddress;
+  });
+  return null;
+}
+
+export function useJettonWallet(
+  address: Address | string | null,
+  jettonMasterAddress: Address | string | null
+) {
+  const client = useTonClient();
+  const [jettonWalletAddress, setJettonWalletAddress] =
+    useState<null | Address>(null);
+
+  address = address
+    ? typeof address === "string"
+      ? Address.parse(address)
+      : address
+    : address;
+  jettonMasterAddress = jettonMasterAddress
+    ? typeof jettonMasterAddress === "string"
+      ? Address.parse(jettonMasterAddress)
+      : jettonMasterAddress
+    : null;
+
+  useEffect(() => {
+    const fetchJettonMaster = async () => {
+      if (!client || !address || !jettonMasterAddress) return;
+
+      const minterContract: JettonMsaterWrapper = JettonMsaterWrapper.create(
+        jettonMasterAddress!
+      );
+
+      try {
+        await withRetry(async () => {
+          const jettonMinter = client.open(minterContract);
+          const walletAddress = await jettonMinter.getWalletAddress(
+            address as Address
+          );
+          setJettonWalletAddress(walletAddress);
+        });
+      } catch (error) {
+        console.error("Error fetching sale data:", error);
+      }
+    };
+
+    fetchJettonMaster();
+  }, [address, jettonWalletAddress, client]);
+
+  return jettonWalletAddress;
 }
 
 export function usePoolMetadata(address: string | null | undefined) {

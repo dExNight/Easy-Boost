@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { PoolStorage, usePoolPositions } from "../../hooks/useStakingPool";
-import { fromNano, Sender } from "@ton/core";
+import { Address, fromNano, Sender } from "@ton/core";
 import { formatTimestampToUTC, normalizeNumber, timestamp } from "../../utils";
 import { isMainnet } from "../../config";
 import { JettonMaster, NftItemResponse } from "../../hooks/useTonCenter";
@@ -12,25 +12,40 @@ import { Button } from "react-bootstrap";
 import StakeModal from "./StakeModal";
 import { useTonConnectContext } from "../../contexts/TonConnectContext";
 import Positions from "./Positions";
+import CreateBoost from "../StakingPool/CreateBoostModal";
+import { SendTransactionResponse } from "@tonconnect/ui-react";
 
 export interface PoolInfoProps {
   address: string;
   poolData: PoolStorage;
   poolJetton: JettonMaster;
+  nextBoostAddress: Address;
   handleBoostNavigate: (boostIndex: number) => void;
   stake: (amount: bigint, duration: number, sender: Sender) => void;
+  createBoost: (
+    boostDuration: number
+  ) => Promise<SendTransactionResponse | undefined>;
+  initializeBoost: (
+    boostAddress: Address,
+    boostWalletAddress: Address
+  ) => Promise<SendTransactionResponse | undefined>;
 }
 
 const PoolInfo: React.FC<PoolInfoProps> = ({
   address,
   poolData,
   poolJetton,
+  nextBoostAddress,
   handleBoostNavigate,
   stake,
+  createBoost,
+  initializeBoost,
 }) => {
   const { sender } = useTonConnectContext();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isStakeModalOpen, setIsStakeModalOpen] = useState(false);
+  const [isCreationModalOpen, setIsCreationModalOpen] =
+    useState<boolean>(false);
   const [isPositionsModalOpen, setIsPositionsModalOpen] = useState(false);
   const [timeBeforeEnd, setTimeBeforeEnd] = useState<number>(
     poolData ? poolData.endTime - timestamp() : 0
@@ -148,6 +163,14 @@ const PoolInfo: React.FC<PoolInfoProps> = ({
               My positions
             </Button>
           )}
+          <Button
+            onClick={() => setIsCreationModalOpen(true)}
+            className="w-full min-h-12 rounded-2xl border-0 hover:bg-slate-600"
+            variant="primary"
+            disabled={true}
+          >
+            Create boost
+          </Button>
           {(!userPositions || userPositions.length <= 0) && (
             <p>No active positions</p>
           )}
@@ -176,6 +199,13 @@ const PoolInfo: React.FC<PoolInfoProps> = ({
         nfts={userPositions}
         decimals={Number(poolJetton.jetton_content.decimals!)}
         symbol={poolJetton.jetton_content.symbol!}
+      />
+      <CreateBoost
+        isOpen={isCreationModalOpen}
+        setIsModalOpen={setIsCreationModalOpen}
+        nextBoostAddress={nextBoostAddress}
+        createBoost={createBoost}
+        initializeBoost={initializeBoost}
       />
     </div>
   );

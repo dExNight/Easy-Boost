@@ -42,6 +42,10 @@ export function useBoostStorage(
       const boostAddr: Address = await stakingPool.getBoost(boostIndex);
       setBoostAddress(boostAddr);
 
+      if (!(await client.isContractDeployed(boostAddr))) {
+        return;
+      }
+
       const contract = Boost.createFromAddress(boostAddr);
       const boost = client.open(contract) as OpenedContract<Boost>;
 
@@ -82,6 +86,75 @@ export function useBoostStorage(
 
     fetchBoostStorage();
   }, [poolAddress, boostStorage, client]);
+
+  return {
+    address: boostAddress,
+    boostData: boostStorage,
+  };
+}
+
+export function useBoostStorageByAddress(boostAddress: Address | null) {
+  const client = useTonClient();
+  const [boostStorage, setBoostStorage] = useState<null | BoostStorage>(null);
+
+  let intervalId: number;
+
+  useEffect(() => {
+    const fetchBoostStorage = async () => {
+      if (!client || !boostAddress) return;
+
+      if (!(await client.isContractDeployed(boostAddress))) {
+        return;
+      }
+
+      const contract = Boost.createFromAddress(boostAddress);
+      const boost = client.open(contract) as OpenedContract<Boost>;
+
+      try {
+        await withRetry(async () => {
+          const {
+            init,
+            poolAddress,
+            boostIndex,
+            creatorAddress,
+            startTime,
+            endTime,
+            snapshotItemIndex,
+            snapshotTvl,
+            totalRewards,
+            farmingSpeed,
+            boostWalletAddress,
+          } = await boost.getBoostData();
+
+          setBoostStorage({
+            init: init == 1,
+            poolAddress: poolAddress,
+            boostIndex: boostIndex,
+            creatorAddress: creatorAddress,
+            startTime: startTime,
+            endTime: endTime,
+            snapshotItemIndex: snapshotItemIndex,
+            snapshotTvl: snapshotTvl,
+            totalRewards: totalRewards,
+            farmingSpeed: farmingSpeed,
+            boostWalletAddress: boostWalletAddress,
+          });
+        });
+      } catch (error) {
+        console.error("Error fetching sale data:", error);
+      }
+    };
+
+    fetchBoostStorage();
+
+    intervalId = setInterval(fetchBoostStorage, 7000);
+
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    };
+  }, [boostAddress, boostStorage, client]);
 
   return {
     address: boostAddress,

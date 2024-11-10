@@ -34,11 +34,11 @@ const BoostSelectionModal: React.FC<BoostSelectionModalProps> = ({
 
   return (
     <div
-      className={`fixed bg-black bg-opacity-50 backdrop-blur-[10px] inset-0 flex items-center justify-center z-50 ${
+      className={`fixed scrollbar-modern bg-black bg-opacity-50 backdrop-blur-[10px] inset-0 flex items-center justify-center z-50 ${
         isOpen ? "" : "hidden"
       }`}
     >
-      <div className="bg-gray-800 p-6 rounded-lg shadow-md w-full max-w-md">
+      <div className="bg-gray-800 h-[80%] overflow-auto scrollbar-modern p-6 rounded-lg shadow-md w-full max-w-md">
         <h2 className="text-2xl font-bold mb-4">Select Boost</h2>
         <div className="space-y-4">
           {indexes.map((index) => (
