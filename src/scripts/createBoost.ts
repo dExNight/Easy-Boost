@@ -50,15 +50,13 @@ export async function run(provider: NetworkProvider) {
     console.log('Contract:', boost.address, ', is deployed:', is_deployed);
     if (!is_deployed) {
         await stakingPool.sendAddBoost(provider.sender(), {
+            boostIndex: nextBoostIndex,
             startTime: boostConfig.startTime,
             endTime: boostConfig.endTime,
+            boostWalletAddress: boost.address,
         });
 
         await provider.waitForDeploy(boost.address, 30);
-
-        await boost.sendSetBoostJettonWallet(provider.sender(), boostWallet.address);
-
-        await sleep(10000);
     }
 
     await boostCreatorWallet.sendTransfer(provider.sender(), {

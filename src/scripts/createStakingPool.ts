@@ -8,8 +8,8 @@ import { amountToJettons, timestamp } from '../wrappers/utils';
 
 const POOL_CREATOR_ADDRESS: Address = Address.parse('0QAAeHjRVfqPfRIjkPlxcv-OAffJUfAxWSu6RFli4FUeUCRn');
 
-const JETTON_MINTER_ADDRESS: Address = Address.parse('kQBYjZ-AfW8eMDKOfH2OAJr3pnjcl4dKfaGmWs6EaeT8KrbV');
-const POOL_ADMIN_ADDRESS: Address = Address.parse('EQAzxjrnsoKrp4J9ggSfOUkGhkVzxhLh7sGORZdLzDAxwvuU');
+const JETTON_MINTER_ADDRESS: Address = Address.parse('kQB8H9gcowwYQGSzS7Wa69Vgw789OBq3QRi0Ob5s4OXMb-xm');
+const POOL_ADMIN_ADDRESS: Address = Address.parse('kQAV5LwJhiRelaPNICiBEAf4z7rPOapdhJfx3eSEwDr5u73K');
 
 const creationTime: number = timestamp();
 

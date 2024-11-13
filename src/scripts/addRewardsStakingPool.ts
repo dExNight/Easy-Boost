@@ -7,10 +7,10 @@ import { StakingPool } from '../wrappers/StakingPool';
 import { amountToJettons } from '../wrappers/utils';
 
 const POOL_CREATOR_ADDRESS: Address = Address.parse('0QAAeHjRVfqPfRIjkPlxcv-OAffJUfAxWSu6RFli4FUeUCRn');
-const JETTON_REWARDS_AMOUNT: number = 100000000000000;
+const JETTON_REWARDS_AMOUNT: number = 10000000000;
 
-const JETTON_MINTER_ADDRESS: Address = Address.parse('kQBYjZ-AfW8eMDKOfH2OAJr3pnjcl4dKfaGmWs6EaeT8KrbV');
-const STAKING_POOL_ADDRESS: Address = Address.parse('kQA4XlS_SzOpGbkoV0FzJEdsR8rdNf4gu2g_GaJFhCOB3JVt');
+const JETTON_MINTER_ADDRESS: Address = Address.parse('kQB8H9gcowwYQGSzS7Wa69Vgw789OBq3QRi0Ob5s4OXMb-xm');
+const STAKING_POOL_ADDRESS: Address = Address.parse('kQCPcqSgZB3UL7fyW-wlpkY5blcxZfmr0-KZRpfqACr-UZNo');
 
 export async function run(provider: NetworkProvider) {
     const jettonMinter = provider.open(JettonMinter.createFromAddress(JETTON_MINTER_ADDRESS));

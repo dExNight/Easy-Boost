@@ -3,7 +3,7 @@ import { JettonMinter } from '../wrappers/JettonMinter';
 import { compile, NetworkProvider } from '@ton/blueprint';
 import { amountToJettons } from '../wrappers/utils';
 
-const JETTON_ADMIN_ADDRESS: Address = Address.parse('0QAAeHjRVfqPfRIjkPlxcv-OAffJUfAxWSu6RFli4FUeUCRn');
+const JETTON_ADMIN_ADDRESS: Address = Address.parse('0QA86c7UHn633_g5npavByvBT0K3K2sjb-6AM3TmlOrZRv0m');
 const JETTON_METADATA_URL: string =
     'https://raw.githubusercontent.com/dExNight/ProjectConfigurations/refs/heads/main/jBTC/metadata.json';
 
