@@ -9,17 +9,17 @@ import { amountToJettons, timestamp } from '../wrappers/utils';
 
 const BOOST_CREATOR_ADDRESS: Address = Address.parse('0QAAeHjRVfqPfRIjkPlxcv-OAffJUfAxWSu6RFli4FUeUCRn');
 
-const JETTON_MINTER_ADDRESS: Address = Address.parse('kQBYjZ-AfW8eMDKOfH2OAJr3pnjcl4dKfaGmWs6EaeT8KrbV');
-const STAKING_POOL_ADDRESS: Address = Address.parse('kQAK9Lt-QUiw4p3HHtfLEp11MUPkM8JJA5ChVthQag-9ZBKj');
+const JETTON_MINTER_ADDRESS: Address = Address.parse('kQCXZ65SFVJ2RywQ7FKddJUDX8v3q9CME-OY3Wly6taRqpBZ');
+const STAKING_POOL_ADDRESS: Address = Address.parse('kQA4XlS_SzOpGbkoV0FzJEdsR8rdNf4gu2g_GaJFhCOB3JVt');
 
-const BOOST_REWARDS: number = 1234;
+const BOOST_REWARDS: number = 33333333333333;
 
 const boostStartTime = timestamp();
-const boostDuration = 60 * 60 * 12; // 1/2 day
+const boostDuration = 60 * 60 * 12 * 365; // half a year
 
 const boostConfig = {
-    startTime: boostStartTime + 60,
-    endTime: boostStartTime + 60 + boostDuration,
+    startTime: boostStartTime,
+    endTime: boostStartTime + boostDuration,
 };
 
 export async function run(provider: NetworkProvider) {

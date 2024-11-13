@@ -102,7 +102,6 @@ const int op::change_content_fee = 0xa789294c;
 
 ;; Boost
 const op::top_up_jetton_balance = 0x343a0057;
-const op::set_boost_wallet_address = 0x3b3b3b3b;
 const op::initialize_boost = 0x4b4b4b4b;
 
 {- MESSAGE MODES -}

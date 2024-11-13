@@ -560,8 +560,10 @@ describe('StakingPool', () => {
         );
 
         const addBoostResult = await stakingPool.sendAddBoost(poolCreator.getSender(), {
+            boostIndex: nextBoostIndex,
             startTime: testBoost.startTime,
             endTime: testBoost.endTime,
+            boostWalletAddress: boostJettonWallet.address,
         });
 
         expect(addBoostResult.transactions).toHaveTransaction({
@@ -578,20 +580,9 @@ describe('StakingPool', () => {
         });
 
         const { boostWalletAddress, init, farmingSpeed } = await boost.getBoostData();
-        expect(boostWalletAddress).toBeNull();
         expect(init).toEqual(1);
         expect(farmingSpeed).toEqual(0n);
-
-        const setBoostWallet = await boost.sendSetBoostJettonWallet(poolCreator.getSender(), boostJettonWallet.address);
-
-        expect(setBoostWallet.transactions).toHaveTransaction({
-            from: poolCreator.address,
-            to: boost.address,
-            success: true,
-        });
-
-        const { boostWalletAddress: boostWalletAddressAfter } = await boost.getBoostData();
-        expect(boostWalletAddressAfter).toEqualAddress(boostJettonWallet.address);
+        expect(boostWalletAddress).toEqualAddress(boostJettonWallet.address);
 
         const { nextBoostIndex: nextBoostIndexAfter } = await stakingPool.getStorageData();
         expect(nextBoostIndexAfter).toEqual(nextBoostIndex + 1);
@@ -632,11 +623,11 @@ describe('StakingPool', () => {
         );
 
         const addBoostResult = await stakingPool.sendAddBoost(poolCreator.getSender(), {
+            boostIndex: nextBoostIndex,
             startTime: testBoost.startTime,
             endTime: testBoost.endTime,
+            boostWalletAddress: boostJettonWallet.address,
         });
-
-        const setBoostWallet = await boost.sendSetBoostJettonWallet(poolCreator.getSender(), boostJettonWallet.address);
 
         const addBoostRewardsResult = await poolCreatorJettonWallet.sendTransfer(poolCreator.getSender(), {
             toAddress: boost.address,
@@ -711,11 +702,11 @@ describe('StakingPool', () => {
         );
 
         const addBoostResult = await stakingPool.sendAddBoost(poolCreator.getSender(), {
+            boostIndex: nextBoostIndex,
             startTime: testBoost.startTime,
             endTime: testBoost.endTime,
+            boostWalletAddress: boostJettonWallet.address,
         });
-
-        const setBoostWallet = await boost.sendSetBoostJettonWallet(poolCreator.getSender(), boostJettonWallet.address);
 
         const addBoostRewardsResult = await poolCreatorJettonWallet.sendTransfer(poolCreator.getSender(), {
             toAddress: boost.address,
@@ -818,11 +809,11 @@ describe('StakingPool', () => {
         );
 
         const addBoostResult = await stakingPool.sendAddBoost(poolCreator.getSender(), {
+            boostIndex: nextBoostIndex,
             startTime: testBoost.startTime,
             endTime: testBoost.endTime,
+            boostWalletAddress: boostJettonWallet.address,
         });
-
-        const setBoostWallet = await boost.sendSetBoostJettonWallet(poolCreator.getSender(), boostJettonWallet.address);
 
         const addBoostRewardsResult = await poolCreatorJettonWallet.sendTransfer(poolCreator.getSender(), {
             toAddress: boost.address,
@@ -893,11 +884,11 @@ describe('StakingPool', () => {
         );
 
         const addBoostResult = await stakingPool.sendAddBoost(poolCreator.getSender(), {
+            boostIndex: nextBoostIndex,
             startTime: testBoost.startTime,
             endTime: testBoost.endTime,
+            boostWalletAddress: boostJettonWallet.address,
         });
-
-        const setBoostWallet = await boost.sendSetBoostJettonWallet(poolCreator.getSender(), boostJettonWallet.address);
 
         const addBoostRewardsResult = await poolCreatorJettonWallet.sendTransfer(poolCreator.getSender(), {
             toAddress: boost.address,
@@ -1054,11 +1045,11 @@ describe('StakingPool', () => {
         );
 
         const addBoostResult = await stakingPool.sendAddBoost(poolCreator.getSender(), {
+            boostIndex: nextBoostIndex,
             startTime: testBoost.startTime,
             endTime: testBoost.endTime,
+            boostWalletAddress: boostJettonWallet.address,
         });
-
-        const setBoostWallet = await boost.sendSetBoostJettonWallet(poolCreator.getSender(), boostJettonWallet.address);
 
         const addBoostRewardsResult = await poolCreatorJettonWallet.sendTransfer(poolCreator.getSender(), {
             toAddress: boost.address,

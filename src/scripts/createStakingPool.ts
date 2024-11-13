@@ -20,8 +20,8 @@ const stakingPoolConfig = {
     }),
     minLockPeriod: 60 * 60, // 30 minutes
     commissionFactor: 1,
-    startTime: creationTime + 60, // starts in 1 minute
-    endTime: creationTime + 60 + 60 * 60 * 24, // ends in 1 day
+    startTime: creationTime, // starts in 1 minute
+    endTime: creationTime + 60 * 60 * 24 * 365 * 10, // ends in 10 years
     minimumDeposit: amountToJettons(100),
 };
 

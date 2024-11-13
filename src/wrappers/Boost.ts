@@ -52,23 +52,6 @@ export class Boost implements Contract {
         });
     }
 
-    async sendSetBoostJettonWallet(
-        provider: ContractProvider,
-        via: Sender,
-        walletAddress: Address,
-        query_id: number = 0,
-    ) {
-        await provider.internal(via, {
-            value: Gas.set_boost_wallet_address,
-            sendMode: SendMode.PAY_GAS_SEPARATELY,
-            body: beginCell()
-                .storeUint(Opcodes.set_boost_wallet_address, 32)
-                .storeUint(query_id, 64)
-                .storeAddress(walletAddress)
-                .endCell(),
-        });
-    }
-
     async getBoostData(provider: ContractProvider) {
         const result = (await provider.get('get_boost_data', [])).stack;
         return {
