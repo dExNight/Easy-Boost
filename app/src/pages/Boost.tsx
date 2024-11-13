@@ -3,7 +3,6 @@ import { useParams } from "react-router-dom";
 import SpinnerElement from "../components/Utils/Spinner";
 import { useBoostStorage } from "../hooks/useBoost";
 import BoostInfo from "../components/Boost/BoostInfo";
-import { JettonMaster } from "../hooks/useTonCenter";
 import { usePoolJettons } from "../hooks/useStakingPool";
 
 const BoostPage: React.FC = () => {
@@ -11,25 +10,36 @@ const BoostPage: React.FC = () => {
     address: string;
     boostIndex: string;
   }>();
-  const boostIndexNumber: number = Number(boostIndex);
+  
+  const boostIndexNumber = Number(boostIndex);
   const data = useBoostStorage(address, boostIndexNumber);
-  const boostJetton: JettonMaster | null = usePoolJettons(
-    data.boostData?.boostWalletAddress
-  );
+  const boostJetton = usePoolJettons(data?.boostData?.boostWalletAddress);
 
-  const isLoading: boolean = !data || !boostJetton || !address;
+  if (!address) {
+    return (
+      <div className="flex justify-center items-center h-full">
+        <p className="text-lg text-gray-400">Address not provided</p>
+      </div>
+    );
+  }
+
+  if (!data || !data.address || !data.boostData) {
+    return (
+      <div className="relative flex justify-center items-center w-full h-full">
+        <SpinnerElement />
+      </div>
+    );
+  }
 
   return (
     <div className="relative flex justify-center items-center w-full h-full">
-      {isLoading && <SpinnerElement />}
-      {!isLoading && (
-        <BoostInfo
-          address={data!.address!}
-          poolAddress={address!}
-          boostData={data!.boostData!}
-          boostJetton={boostJetton!}
-        />
-      )}
+      <BoostInfo
+        address={data.address}
+        poolAddress={address}
+        boostData={data.boostData}
+        boostJetton={boostJetton}
+        topUp={data.topUp}
+      />
     </div>
   );
 };

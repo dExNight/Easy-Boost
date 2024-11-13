@@ -1,19 +1,18 @@
 import React, { useState } from "react";
-import { Address } from "@ton/core";
+import { Address, Sender } from "@ton/core";
 import { useJettonWallet } from "../../hooks/useStakingPool";
-import { SendTransactionResponse } from "@tonconnect/ui-react";
+import { isValidAddress } from "../../utils";
 
 export interface CreatePoolProps {
   isOpen: boolean;
   setIsModalOpen: (state: boolean) => void;
   nextBoostAddress: Address;
   createBoost: (
-    boostDuration: number
-  ) => Promise<SendTransactionResponse | undefined>;
-  initializeBoost: (
-    boostAddress: Address,
-    boostWalletAddress: Address
-  ) => Promise<SendTransactionResponse | undefined>;
+    boostDuration: number,
+    boostWalletAddress: Address,
+    sender: Sender
+  ) => Promise<void>;
+  sender: Sender;
 }
 
 const CreateBoost: React.FC<CreatePoolProps> = ({
@@ -21,7 +20,7 @@ const CreateBoost: React.FC<CreatePoolProps> = ({
   setIsModalOpen,
   nextBoostAddress,
   createBoost,
-  initializeBoost,
+  sender,
 }) => {
   const [jettonMinterAddress, setJettonMinterAddress] =
     useState<Address | null>(null);
@@ -29,9 +28,6 @@ const CreateBoost: React.FC<CreatePoolProps> = ({
     nextBoostAddress,
     jettonMinterAddress
   );
-
-  console.log(initializeBoost.name);
-  console.log(nextBoostJettonWallet?.workChain);
 
   const [formData, setFormData] = useState({
     boostDuration: "30",
@@ -73,14 +69,40 @@ const CreateBoost: React.FC<CreatePoolProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!nextBoostJettonWallet) {
+      alert("Jetton wallet is not found");
+      return;
+    }
+
     if (validateForm()) {
-      setJettonMinterAddress(Address.parse(formData.jettonAddress));
-      await createBoost(Number(formData.boostDuration));
+      try {
+        console.log(
+          "Creating boost",
+          formData.boostDuration,
+          nextBoostJettonWallet
+        );
+        await createBoost(
+          Number(formData.boostDuration),
+          nextBoostJettonWallet,
+          sender
+        );
+        alert(`Boost created successfully`);
+        setIsModalOpen(false);
+      } catch (e: any) {
+        alert(`Failed to create boost: ${e.message}`);
+      }
     }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
+
+    if (name === "jettonAddress" && isValidAddress(value)) {
+      console.log("Jetton address", value);
+      setJettonMinterAddress(Address.parse(value));
+    }
+
     setFormData((prev) => ({
       ...prev,
       [name]: value,
@@ -150,6 +172,7 @@ const CreateBoost: React.FC<CreatePoolProps> = ({
             <button
               type="submit"
               className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-500 focus:outline-none"
+              disabled={!nextBoostJettonWallet}
             >
               Create Boost
             </button>

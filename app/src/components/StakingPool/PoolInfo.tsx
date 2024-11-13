@@ -13,7 +13,6 @@ import StakeModal from "./StakeModal";
 import { useTonConnectContext } from "../../contexts/TonConnectContext";
 import Positions from "./Positions";
 import CreateBoost from "../StakingPool/CreateBoostModal";
-import { SendTransactionResponse } from "@tonconnect/ui-react";
 
 export interface PoolInfoProps {
   address: string;
@@ -23,12 +22,10 @@ export interface PoolInfoProps {
   handleBoostNavigate: (boostIndex: number) => void;
   stake: (amount: bigint, duration: number, sender: Sender) => void;
   createBoost: (
-    boostDuration: number
-  ) => Promise<SendTransactionResponse | undefined>;
-  initializeBoost: (
-    boostAddress: Address,
-    boostWalletAddress: Address
-  ) => Promise<SendTransactionResponse | undefined>;
+    boostDuration: number,
+    boostWalletAddress: Address,
+    sender: Sender
+  ) => Promise<void>;
 }
 
 const PoolInfo: React.FC<PoolInfoProps> = ({
@@ -39,7 +36,6 @@ const PoolInfo: React.FC<PoolInfoProps> = ({
   handleBoostNavigate,
   stake,
   createBoost,
-  initializeBoost,
 }) => {
   const { sender } = useTonConnectContext();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -65,11 +61,7 @@ const PoolInfo: React.FC<PoolInfoProps> = ({
   }, []);
 
   let loading: boolean =
-    isCreationModalOpen ||
-    !nextBoostAddress ||
-    !createBoost ||
-    !initializeBoost ||
-    !CreateBoost;
+    isCreationModalOpen || !nextBoostAddress || !createBoost || !CreateBoost;
   loading = false; // or use eslint-disable-next-line
 
   return (
@@ -175,7 +167,7 @@ const PoolInfo: React.FC<PoolInfoProps> = ({
             onClick={() => setIsCreationModalOpen(true)}
             className="w-full min-h-12 rounded-2xl border-0 hover:bg-slate-600"
             variant="primary"
-            disabled={true}
+            disabled={false}
           >
             Create boost
           </Button>
@@ -208,13 +200,13 @@ const PoolInfo: React.FC<PoolInfoProps> = ({
         decimals={Number(poolJetton.jetton_content.decimals!)}
         symbol={poolJetton.jetton_content.symbol!}
       />
-      {/* <CreateBoost
+      <CreateBoost
         isOpen={isCreationModalOpen}
         setIsModalOpen={setIsCreationModalOpen}
         nextBoostAddress={nextBoostAddress}
         createBoost={createBoost}
-        initializeBoost={initializeBoost}
-      /> */}
+        sender={sender}
+      />
     </div>
   );
 };

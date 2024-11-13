@@ -162,19 +162,25 @@ export class StakingPool implements Contract {
     provider: ContractProvider,
     via: Sender,
     opts: {
+      boostIndex: number;
       startTime: number | bigint;
       endTime: number | bigint;
+      boostWalletAddress: Address;
       queryId?: number;
     }
   ) {
+    console.log("start time:", opts.startTime);
+    console.log("end time:", opts.endTime);
     await provider.internal(via, {
       value: Gas.add_boost,
       sendMode: SendMode.PAY_GAS_SEPARATELY,
       body: beginCell()
         .storeUint(Opcodes.add_boost, 32)
         .storeUint(opts.queryId ?? 0, 64)
+        .storeUint(opts.boostIndex, 32)
         .storeUint(opts.startTime, 32)
         .storeUint(opts.endTime, 32)
+        .storeAddress(opts.boostWalletAddress)
         .endCell(),
     });
   }

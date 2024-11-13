@@ -1,14 +1,7 @@
 import { useEffect, useState } from "react";
 import { StakingPool } from "../contracts/StakingPool";
 import { useTonClient } from "./useTonClient";
-import {
-  Address,
-  beginCell,
-  Cell,
-  OpenedContract,
-  Sender,
-  toNano,
-} from "@ton/core";
+import { Address, Cell, OpenedContract, Sender, toNano } from "@ton/core";
 import TonCenterV3, {
   JettonMaster,
   NftCollection,
@@ -18,10 +11,7 @@ import { JettonMaster as JettonMsaterWrapper, TonClient } from "@ton/ton";
 import { JettonWallet } from "../contracts/JettonWallet";
 import { buildStakeJettonsPoolPayload } from "../contracts/payload";
 import { timestamp, withRetry } from "../utils";
-import { Gas, Opcodes } from "../contracts/constants";
 import { day } from "../constants";
-import { Message, sendTransaction } from "./useTonConnectUI";
-import { useTonConnectContext } from "../contexts/TonConnectContext";
 
 export interface PoolStorage {
   init: number;
@@ -50,7 +40,6 @@ export interface PoolStorage {
 
 export function usePoolStorage(address: string | undefined) {
   const client = useTonClient();
-  const { tonConnectUI } = useTonConnectContext();
   const [poolStorage, setPoolStorage] = useState<null | PoolStorage>(null);
   const [nextBoostAddress, setNextBoostAddress] = useState<null | Address>(
     null
@@ -124,55 +113,24 @@ export function usePoolStorage(address: string | undefined) {
         console.error("Error sending transactions", error);
       }
     },
-    createBoost: async (boostDuration: number) => {
-      if (!client || !address || !nextBoostAddress) {
+    createBoost: async (
+      boostDuration: number,
+      boostWalletAddress: Address,
+      sender: Sender
+    ) => {
+      if (!client || !stakingPool || !poolStorage) {
         console.error("Boost is not initialized");
         return;
       }
       try {
         const now = timestamp();
-        const creationMsgBody = beginCell()
-          .storeUint(Opcodes.add_boost, 32)
-          .storeUint(0, 64)
-          .storeUint(now, 32)
-          .storeUint(now + boostDuration * day, 32)
-          .endCell();
 
-        const cretionMsg: Message = {
-          to: address,
-          amount: Gas.add_boost,
-          msg_body: creationMsgBody.toBoc().toString("base64"),
-        };
-
-        return await sendTransaction(tonConnectUI, [cretionMsg]);
-      } catch (error) {
-        console.error("Error sending transactions", error);
-      }
-    },
-    initializeBoost: async (
-      boostAddress: Address,
-      boostWalletAddress: Address
-    ) => {
-      if (!client || !address || !boostAddress || !boostWalletAddress) {
-        console.error("Boost is not initialized");
-        return;
-      }
-      try {
-        const addBoostWalletMsgBody = beginCell()
-          .storeUint(Opcodes.set_boost_wallet_address, 32)
-          .storeUint(0, 64)
-          .storeAddress(boostWalletAddress)
-          .endCell();
-
-        console.log("Sending with wallet:", boostWalletAddress.toString());
-
-        const addBoostWalletMsg: Message = {
-          to: boostAddress.toString(),
-          amount: Gas.set_boost_wallet_address,
-          msg_body: addBoostWalletMsgBody.toBoc().toString("base64"),
-        };
-
-        return await sendTransaction(tonConnectUI, [addBoostWalletMsg]);
+        await stakingPool.sendAddBoost(sender, {
+          boostIndex: poolStorage.nextBoostIndex,
+          startTime: now,
+          endTime: now + boostDuration * day,
+          boostWalletAddress: boostWalletAddress,
+        });
       } catch (error) {
         console.error("Error sending transactions", error);
       }
@@ -278,7 +236,7 @@ export function useJettonWallet(
     };
 
     fetchJettonMaster();
-  }, [address, jettonWalletAddress, client]);
+  }, [address, jettonMasterAddress, jettonWalletAddress, client]);
 
   return jettonWalletAddress;
 }

@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react";
 import { Boost } from "../contracts/Boost";
 import { useTonClient } from "./useTonClient";
-import { Address, OpenedContract } from "@ton/core";
+import { Address, OpenedContract, Sender, toNano } from "@ton/core";
 import { StakingPool } from "../contracts/StakingPool";
 import { withRetry } from "../utils";
+import { JettonMaster } from "@ton/ton";
+import { JettonWallet } from "../contracts/JettonWallet";
+import { buildAddBoostRewardsPayload } from "../contracts/payload";
 
 export type BoostStorage = {
   init: boolean;
@@ -90,6 +93,50 @@ export function useBoostStorage(
   return {
     address: boostAddress,
     boostData: boostStorage,
+    topUp: async (amount: bigint, sender: Sender) => {
+      if (
+        !boostAddress ||
+        !boostStorage ||
+        !boostStorage.boostWalletAddress ||
+        !client ||
+        !sender.address
+      ) {
+        console.error("Staking pool contract is not initialized");
+        return;
+      }
+      try {
+        console.log(boostStorage.boostWalletAddress.toString());
+        const { stack } = await client.runMethod(
+          boostStorage.boostWalletAddress!,
+          "get_wallet_data"
+        );
+        stack.readBigNumber();
+        stack.readAddress();
+        const jetton_master_address = stack.readAddress();
+
+        const jettonMinter = client.open(
+          JettonMaster.create(jetton_master_address)
+        );
+
+        const userJettonWalletAddress = await jettonMinter.getWalletAddress(
+          sender.address
+        );
+
+        const userJettonWallet = client.open(
+          JettonWallet.createFromAddress(userJettonWalletAddress)
+        );
+
+        await userJettonWallet.sendTransfer(sender, {
+          toAddress: boostAddress,
+          jettonAmount: amount,
+          fwdAmount: toNano("0.1"),
+          fwdPayload: buildAddBoostRewardsPayload(),
+          value: toNano("0.2"),
+        });
+      } catch (error) {
+        console.error("Error sending transactions", error);
+      }
+    },
   };
 }
 

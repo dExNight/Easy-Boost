@@ -62,6 +62,15 @@ const Positions: React.FC<PositionsProps> = ({
           <h2 className="w-full flex text-2xl font-bold justify-center">
             No available rewards
           </h2>
+
+          <div className="flex justify-end mt-6 gap-2">
+            <button
+              className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-500"
+              onClick={() => setIsModalOpen(false)}
+            >
+              Close
+            </button>
+          </div>
         </div>
       </div>
     );

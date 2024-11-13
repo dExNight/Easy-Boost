@@ -11,10 +11,10 @@ import { JettonMaster } from "../hooks/useTonCenter";
 
 const PoolAdminPage: React.FC = () => {
   const poolsAdminAddress: Address = Address.parse(
-    "kQAzxjrnsoKrp4J9ggSfOUkGhkVzxhLh7sGORZdLzDAxwkAe"
+    "kQAV5LwJhiRelaPNICiBEAf4z7rPOapdhJfx3eSEwDr5u73K"
   );
   const poolsAdminJettonWallet: Address = Address.parse(
-    "kQCPcpA9mZhQpAL1HdHT546dQ3guN8tUqlit7nvwRToZqEma"
+    "kQBG7QBL9eRgtL2bLdvd4a04AMLxeLL08zwQ5vuUuAfyQTMr"
   );
 
   const poolsAdminData: PoolsAdminStorage | null = usePoolsAdminStorage(
