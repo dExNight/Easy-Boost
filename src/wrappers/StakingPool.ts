@@ -5,7 +5,6 @@ import {
     Contract,
     contractAddress,
     ContractProvider,
-    Dictionary,
     Sender,
     SendMode,
     toNano,
@@ -152,8 +151,10 @@ export class StakingPool implements Contract {
         provider: ContractProvider,
         via: Sender,
         opts: {
+            boostIndex: number;
             startTime: number | bigint;
             endTime: number | bigint;
+            boostWalletAddress: Address;
             queryId?: number;
         },
     ) {
@@ -163,8 +164,10 @@ export class StakingPool implements Contract {
             body: beginCell()
                 .storeUint(Opcodes.add_boost, 32)
                 .storeUint(opts.queryId ?? 0, 64)
+                .storeUint(opts.boostIndex, 32)
                 .storeUint(opts.startTime, 32)
                 .storeUint(opts.endTime, 32)
+                .storeAddress(opts.boostWalletAddress)
                 .endCell(),
         });
     }

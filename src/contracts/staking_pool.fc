@@ -221,8 +221,12 @@ global slice storage::creator_address;         ;; Creator address (MsgAddress)
         cell state_init = calculate_boost_stateinit(storage::boost_code, my_address(), storage::next_boost_index, storage::nft_item_code, storage::boost_helper_code);
         slice boost_address = calculate_boost_address(state_init);
 
+        int boost_index = in_msg_body~load_uint(32);
+        throw_unless(exc::incorrect_input, boost_index == storage::next_boost_index);
+
         int start_time = in_msg_body~load_uint(32);
         int end_time = in_msg_body~load_uint(32);
+        slice boost_wallet_address = in_msg_body~load_msg_addr();
         ;; use next boost index
         cell msg_body = begin_cell()
                 .store_uint(op::initialize_boost, 32)
@@ -234,6 +238,7 @@ global slice storage::creator_address;         ;; Creator address (MsgAddress)
                 .store_coins(storage::last_tvl)
                 .store_coins(0) ;; total_rewards
                 .store_coins(0) ;; farming_speed
+                .store_slice(boost_wallet_address)
             .end_cell();
 
         builder msg = begin_cell()

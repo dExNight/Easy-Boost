@@ -6,7 +6,7 @@ import { amountToJettons } from '../wrappers/utils';
 
 const TEAM_ADDRESS: Address = Address.parse('0QAAeHjRVfqPfRIjkPlxcv-OAffJUfAxWSu6RFli4FUeUCRn');
 
-const JETTON_MINTER_ADDRESS: Address = Address.parse('kQBYjZ-AfW8eMDKOfH2OAJr3pnjcl4dKfaGmWs6EaeT8KrbV');
+const JETTON_MINTER_ADDRESS: Address = Address.parse('kQB8H9gcowwYQGSzS7Wa69Vgw789OBq3QRi0Ob5s4OXMb-xm');
 
 const poolsAdminConfig = {
     creationFee: amountToJettons(10),
@@ -38,7 +38,7 @@ export async function run(provider: NetworkProvider) {
     if (!(await provider.isContractDeployed(poolsAdmin.address))) {
         await poolsAdmin.sendDeploy(provider.sender(), toNano('0.05'));
 
-        await provider.waitForDeploy(poolsAdmin.address);
+        await provider.waitForDeploy(poolsAdmin.address, 100);
     }
 
     // Compute and set poolsAdmin jetton wallet address

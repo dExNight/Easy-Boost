@@ -9,7 +9,6 @@ import {
     SendMode,
     TupleBuilder,
 } from '@ton/core';
-import { Opcodes, Gas } from './constants';
 
 export type BoostConfig = {
     poolAddress: Address;
@@ -49,23 +48,6 @@ export class Boost implements Contract {
             value,
             sendMode: SendMode.PAY_GAS_SEPARATELY,
             body: beginCell().endCell(),
-        });
-    }
-
-    async sendSetBoostJettonWallet(
-        provider: ContractProvider,
-        via: Sender,
-        walletAddress: Address,
-        query_id: number = 0,
-    ) {
-        await provider.internal(via, {
-            value: Gas.set_boost_wallet_address,
-            sendMode: SendMode.PAY_GAS_SEPARATELY,
-            body: beginCell()
-                .storeUint(Opcodes.set_boost_wallet_address, 32)
-                .storeUint(query_id, 64)
-                .storeAddress(walletAddress)
-                .endCell(),
         });
     }
 

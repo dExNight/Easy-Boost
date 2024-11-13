@@ -82,16 +82,6 @@ global cell storage::boost_helper_code;
     int op = in_msg_body~load_uint(32);
     int query_id = in_msg_body~load_uint(64);
 
-    if (op == op::set_boost_wallet_address) {
-        throw_unless(exc::incorrect_sender, equal_slices(storage::creator_address, sender_address));
-        throw_unless(666, storage::init?);
-        throw_if(666, slice_bits(storage::boost_wallet_address) > 2);
-
-        storage::boost_wallet_address = in_msg_body~load_msg_addr();
-        save_data();
-        return ();
-    }
-
     if (op == op::initialize_boost) {
         throw_unless(exc::incorrect_sender, equal_slices(storage::pool_address, sender_address));
         throw_if(666, storage::init?);
@@ -103,8 +93,8 @@ global cell storage::boost_helper_code;
         storage::snapshot_tvl = in_msg_body~load_coins();
         storage::total_rewards = in_msg_body~load_coins();
         storage::farming_speed = in_msg_body~load_coins();
-        storage::boost_wallet_address = null_addr();
-
+        storage::boost_wallet_address = in_msg_body~load_msg_addr();
+        
         storage::init? = 1;
         save_data();
         return ();
