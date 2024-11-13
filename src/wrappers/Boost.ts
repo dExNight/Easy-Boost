@@ -9,7 +9,6 @@ import {
     SendMode,
     TupleBuilder,
 } from '@ton/core';
-import { Opcodes, Gas } from './constants';
 
 export type BoostConfig = {
     poolAddress: Address;
