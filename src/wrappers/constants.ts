@@ -76,3 +76,4 @@ export const StakingPool = {
 };
 
 export const OFFCHAIN_CONTENT_PREFIX: number = 0x01;
+export const distributedRewardsFivider = 100000000000000000000000000000000000000n;

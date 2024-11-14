@@ -6,7 +6,12 @@ export type BoostHelperConfig = {
 };
 
 export function boostHelperConfigToCell(config: BoostHelperConfig): Cell {
-    return beginCell().storeUint(0, 1).storeAddress(config.boostAddress).storeAddress(config.nftAddress).endCell();
+    return beginCell()
+        .storeUint(0, 1)
+        .storeAddress(config.boostAddress)
+        .storeAddress(config.nftAddress)
+        .storeUint(0, 256)
+        .endCell();
 }
 
 export class BoostHelper implements Contract {
@@ -39,6 +44,7 @@ export class BoostHelper implements Contract {
             claimed: result.readNumber(),
             boostAddress: result.readAddress(),
             nftAddress: result.readAddress(),
+            userDistributedRewards: result.readBigNumber(),
         };
     }
 }
