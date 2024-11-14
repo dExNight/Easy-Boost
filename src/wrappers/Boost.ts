@@ -9,6 +9,7 @@ import {
     SendMode,
     TupleBuilder,
 } from '@ton/core';
+import { timestamp as getTimestamp } from './utils';
 
 export type BoostConfig = {
     poolAddress: Address;
@@ -83,5 +84,14 @@ export class Boost implements Contract {
         const result = (await provider.get('get_boost_helper_address', params.build())).stack;
 
         return result.readAddress();
+    }
+
+    async getCurrentFarmedValue(provider: ContractProvider, timestamp?: number): Promise<bigint> {
+        const { startTime, endTime, totalRewards, farmingSpeed } = await this.getBoostData(provider);
+        const now = timestamp ? timestamp : getTimestamp();
+        if (now < startTime) return 0n;
+        if (now >= endTime) return totalRewards;
+        const timePassed = now - startTime;
+        return (BigInt(timePassed) * farmingSpeed) / 86400n;
     }
 }
