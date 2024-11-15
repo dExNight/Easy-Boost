@@ -252,7 +252,6 @@ global slice storage::creator_address;         ;; Creator address (MsgAddress)
 
         send_raw_message(msg.end_cell(), mode::carry_remaining_gas);
         
-        int bitsinslice = slice_bits(boost_address); ;; TODO: remove?
         storage::next_boost_index += 1;
         save_data();
         return ();
