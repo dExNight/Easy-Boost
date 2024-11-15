@@ -47,7 +47,7 @@ const BoostInfo: React.FC<BoostInfoProps> = ({
 
   if (!isRewarded) {
     return (
-      <div className="flex flex-col items-center justify-center my-8 gap-4">
+      <div className="flex flex-col items-center justify-center w-full max-w-2xl mx-auto my-4 px-4 gap-4">
         <h2 className="text-2xl font-bold text-center">
           Boost #{boostData.boostIndex + 1}
         </h2>

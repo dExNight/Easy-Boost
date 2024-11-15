@@ -25,14 +25,14 @@ const BoostPage: React.FC = () => {
 
   if (!data || !data.address || !data.boostData) {
     return (
-      <div className="relative flex justify-center items-center w-full h-full">
+      <div className="flex justify-center items-center w-full h-full overflow-auto p-4">
         <SpinnerElement />
       </div>
     );
   }
 
   return (
-    <div className="relative flex justify-center items-center w-full h-full">
+    <div className="flex justify-center items-center w-full h-full overflow-auto p-4">
       <BoostInfo
         address={data.address}
         poolAddress={address}

@@ -26,45 +26,42 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
   passedTime = passedTime > 0 ? passedTime : 0;
 
   let passedTimeInDays = passedTime / (24 * 60 * 60);
-
   const percentage =
     ((Number(currentSpeed) * passedTimeInDays) / Number(totalAmount)) * 100;
   const daysRemaining =
     (Number(totalAmount) - Number(currentSpeed)) / Number(currentSpeed);
 
   return (
-    <div className={`w-100 text-white ${className} mb-3`}>
-      <div className="d-flex justify-content-between align-items-end mb-2">
+    <div className={`w-full ${className}`}>
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-2 gap-2">
         <div>
-          <p className="text-lg mb-1">Current Farming Speed</p>
-          <p className="h4 mb-0">
+          <p className="text-sm font-medium mb-1">Current Farming Speed</p>
+          <p className="text-lg font-bold">
             {normalizeNumber(fromNano(currentSpeed))}
-            <span className="small ms-1">{symbol}/day</span>
+            <span className="text-xs ml-1">{symbol}/day</span>
           </p>
         </div>
-        <div className="text-end">
-          <p className="small mb-0">{normalizeNumber(percentage)}% of total</p>
+        <div className="text-right">
+          <p className="text-xs">{normalizeNumber(percentage)}% of total</p>
         </div>
       </div>
 
       <BootstrapProgressBar
         now={percentage}
         variant="primary"
-        className="my-3 h-0.75 text-white"
+        className="h-2 my-3"
       />
 
-      <div className="d-flex justify-content-between small">
+      <div className="flex flex-col md:flex-row justify-between text-xs gap-2">
         <div>
-          <p className="fw-medium mb-1">Total Rewards</p>
-          <p className="mb-0">
+          <p className="font-medium mb-1">Total Rewards</p>
+          <p>
             {normalizeNumber(fromNano(totalAmount))} {symbol}
           </p>
         </div>
-        <div className="text-end">
-          <p className="fw-medium mb-1">Estimated Time</p>
-          <p className="mb-0">
-            {daysRemaining.toFixed(1)} days at current speed
-          </p>
+        <div className="text-right">
+          <p className="font-medium mb-1">Estimated Time</p>
+          <p>{daysRemaining.toFixed(1)} days at current speed</p>
         </div>
       </div>
     </div>

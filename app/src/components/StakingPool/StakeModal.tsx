@@ -43,7 +43,7 @@ const StakeModal: React.FC<StakeModalProps> = ({
         isOpen ? "" : "hidden"
       }`}
     >
-      <div className="bg-gray-800 p-6 rounded-lg shadow-md w-full max-w-md">
+      <div className="bg-gray-800 p-6 rounded-lg shadow-md w-full max-w-sm md:max-w-xl flex flex-col items-center justify-center">
         <h2 className="text-2xl font-bold mb-4">Stake Tokens</h2>
         <Form>
           <Form.Group className="mb-3" controlId="stakeAmount">

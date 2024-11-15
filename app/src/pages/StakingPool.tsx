@@ -23,7 +23,7 @@ const PoolPage: React.FC = () => {
   const isLoading: boolean = !poolStorage || !poolJetton;
 
   return (
-    <div className="relative flex justify-center items-center w-full h-full">
+    <div className="flex justify-center items-center w-full h-full overflow-auto p-4">
       {isLoading && <SpinnerElement />}
       {!isLoading && (
         <PoolInfo

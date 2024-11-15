@@ -12,14 +12,12 @@ const PoolValue: React.FC<PoolValueProps> = ({
   valueClass,
 }) => {
   return (
-    <>
-      <p className={`text-lg ${valueClass ? valueClass : ""}`}>
-        <span className={`font-semibold ${keyClass ? keyClass : ""}`}>
-          {key_}:{" "}
-        </span>
-        {value_}
-      </p>
-    </>
+    <p className={`text-sm md:text-lg ${valueClass ? valueClass : ""}`}>
+      <span className={`font-semibold ${keyClass ? keyClass : ""}`}>
+        {key_}:{" "}
+      </span>
+      {value_}
+    </p>
   );
 };
 

@@ -18,14 +18,14 @@ const PoolsAdminInfo: React.FC<PoolsAdminInfoProps> = ({
   poolsAdminJetton,
 }) => {
   return (
-    <div className="flex flex-col items-center justify-center my-8 gap-4">
-      <h2 className="text-2xl font-bold text-center">
+    <div className="flex flex-col items-center justify-center w-full max-w-2xl mx-auto my-4 px-4 gap-4">
+      <h2 className="text-xl md:text-2xl font-bold text-center">
         Basic pools admin contract
       </h2>
-      <p className="text-lg text-center">
+      <p className="text-sm md:text-lg text-center break-all">
         Address: {address.toString({ testOnly: !isMainnet })}
       </p>
-      <div className="bg-gray-800 p-6 rounded-lg shadow-md w-full max-w-2xl mx-auto overflow-auto">
+      <div className="bg-gray-800 p-4 md:p-6 rounded-lg shadow-md w-full overflow-x-auto">
         <div className="space-y-2">
           <PoolValue
             key_="Creation fee"
@@ -38,25 +38,29 @@ const PoolsAdminInfo: React.FC<PoolsAdminInfoProps> = ({
           />
           <PoolValue
             key_="Team address"
-            value_={`${poolsAdminData.teamAddress.toString({
+            value_={poolsAdminData.teamAddress.toString({
               testOnly: !isMainnet,
-            })}`}
+            })}
+            valueClass="break-all"
           />
           <PoolValue
             key_="Conversion address"
-            value_={`${poolsAdminData.conversionAddress.toString({
+            value_={poolsAdminData.conversionAddress.toString({
               testOnly: !isMainnet,
-            })}`}
+            })}
+            valueClass="break-all"
           />
         </div>
       </div>
 
-      <div className="bg-gray-800 p-6 rounded-lg shadow-md w-full max-w-2xl mx-auto overflow-auto">
+      <div className="bg-gray-800 p-4 md:p-6 rounded-lg shadow-md w-full">
         <div className="space-y-2 flex flex-col justify-center items-center">
-          <p className="text-base font-bold text-center">
+          <p className="text-sm md:text-base font-bold text-center">
             Always available staking pool
           </p>
-          <p>kQAYP1ZExQf0QnFWvldP7xmu9iG0WedvHTnooUDWpHqUTPyS</p>
+          <p className="text-xs md:text-sm break-all text-center">
+            kQAYP1ZExQf0QnFWvldP7xmu9iG0WedvHTnooUDWpHqUTPyS
+          </p>
         </div>
       </div>
     </div>

@@ -1,9 +1,6 @@
 import React from "react";
 import { Address } from "@ton/core";
-import {
-  PoolsAdminStorage,
-  usePoolsAdminStorage,
-} from "../hooks/usePoolsAdmin";
+import { PoolsAdminStorage, usePoolsAdminStorage } from "../hooks/usePoolsAdmin";
 import PoolsAdminInfo from "../components/PoolsAdmin/PoolsAdminInfo";
 import SpinnerElement from "../components/Utils/Spinner";
 import { usePoolJettons } from "../hooks/useStakingPool";
@@ -28,7 +25,7 @@ const PoolAdminPage: React.FC = () => {
   const isLoading: boolean = !poolsAdminData || !poolsAdminJetton;
 
   return (
-    <div className="relative flex justify-center items-center w-full h-full">
+    <div className="flex justify-center items-center w-full h-full overflow-auto p-4">
       {isLoading && <SpinnerElement />}
       {!isLoading && (
         <PoolsAdminInfo
