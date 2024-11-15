@@ -1,4 +1,4 @@
-# Easy Boost: Enhanced Staking System with Dynamic Reward Mechanisms
+# Easy Boost: Fixed APY Staking System with Boost Mechanisms
 
 ## Overview
 
