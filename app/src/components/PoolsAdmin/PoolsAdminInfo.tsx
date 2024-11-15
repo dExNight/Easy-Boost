@@ -56,7 +56,7 @@ const PoolsAdminInfo: React.FC<PoolsAdminInfoProps> = ({
           <p className="text-base font-bold text-center">
             Always available staking pool
           </p>
-          <p>kQCPcqSgZB3UL7fyW-wlpkY5blcxZfmr0-KZRpfqACr-UZNo</p>
+          <p>kQAYP1ZExQf0QnFWvldP7xmu9iG0WedvHTnooUDWpHqUTPyS</p>
         </div>
       </div>
     </div>
