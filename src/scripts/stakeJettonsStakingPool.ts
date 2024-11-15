@@ -6,20 +6,21 @@ import { buildStakeJettonsPoolPayload } from '../wrappers/payload';
 import { StakingPool } from '../wrappers/StakingPool';
 import { amountToJettons } from '../wrappers/utils';
 
-const JETTON_STAKER_ADDRESS: Address = Address.parse('0QAAeHjRVfqPfRIjkPlxcv-OAffJUfAxWSu6RFli4FUeUCRn');
-const JETTONS_TO_STAKE: number = 2000;
-const LOCK_PERIOD: number = 60 * 60 * 24 * 3;
+const JETTONS_TO_STAKE: number = 1000;
+const LOCK_PERIOD: number = 60 * 60 * 24 * 10;
 
 const JETTON_MINTER_ADDRESS: Address = Address.parse('kQB8H9gcowwYQGSzS7Wa69Vgw789OBq3QRi0Ob5s4OXMb-xm');
-const STAKING_POOL_ADDRESS: Address = Address.parse('kQCPcqSgZB3UL7fyW-wlpkY5blcxZfmr0-KZRpfqACr-UZNo');
+const STAKING_POOL_ADDRESS: Address = Address.parse('kQAYP1ZExQf0QnFWvldP7xmu9iG0WedvHTnooUDWpHqUTPyS');
 
 export async function run(provider: NetworkProvider) {
     const jettonMinter = provider.open(JettonMinter.createFromAddress(JETTON_MINTER_ADDRESS));
     const jettonWallet = provider.open(
-        JettonWallet.createFromAddress(await jettonMinter.getWalletAddress(JETTON_STAKER_ADDRESS)),
+        JettonWallet.createFromAddress(await jettonMinter.getWalletAddress(provider.sender().address!)),
     );
 
     const stakingPool = provider.open(StakingPool.createFromAddress(STAKING_POOL_ADDRESS));
+
+    const { lastTvl: tvlBefore } = await stakingPool.getStorageData();
 
     await jettonWallet.sendTransfer(provider.sender(), {
         toAddress: stakingPool.address,
@@ -32,7 +33,7 @@ export async function run(provider: NetworkProvider) {
     while (true) {
         const { lastTvl } = await stakingPool.getStorageData();
 
-        if (lastTvl == amountToJettons(JETTONS_TO_STAKE)) {
+        if (lastTvl - tvlBefore == amountToJettons(JETTONS_TO_STAKE)) {
             console.log('Staked:', lastTvl);
             break;
         }

@@ -10,7 +10,7 @@ const POOL_CREATOR_ADDRESS: Address = Address.parse('0QAAeHjRVfqPfRIjkPlxcv-OAff
 const JETTON_REWARDS_AMOUNT: number = 10000000000;
 
 const JETTON_MINTER_ADDRESS: Address = Address.parse('kQB8H9gcowwYQGSzS7Wa69Vgw789OBq3QRi0Ob5s4OXMb-xm');
-const STAKING_POOL_ADDRESS: Address = Address.parse('kQCPcqSgZB3UL7fyW-wlpkY5blcxZfmr0-KZRpfqACr-UZNo');
+const STAKING_POOL_ADDRESS: Address = Address.parse('kQAYP1ZExQf0QnFWvldP7xmu9iG0WedvHTnooUDWpHqUTPyS');
 
 export async function run(provider: NetworkProvider) {
     const jettonMinter = provider.open(JettonMinter.createFromAddress(JETTON_MINTER_ADDRESS));

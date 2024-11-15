@@ -88,7 +88,10 @@ export function useBoostStorage(
     };
 
     fetchBoostStorage();
-  }, [poolAddress, boostStorage, client]);
+
+    const interval = setInterval(fetchBoostStorage, 5000);
+    return () => clearInterval(interval);
+  }, [poolAddress, client, boostIndex]);
 
   return {
     address: boostAddress,

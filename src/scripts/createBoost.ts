@@ -9,10 +9,10 @@ import { amountToJettons, timestamp } from '../wrappers/utils';
 
 const BOOST_CREATOR_ADDRESS: Address = Address.parse('0QAAeHjRVfqPfRIjkPlxcv-OAffJUfAxWSu6RFli4FUeUCRn');
 
-const JETTON_MINTER_ADDRESS: Address = Address.parse('kQCXZ65SFVJ2RywQ7FKddJUDX8v3q9CME-OY3Wly6taRqpBZ');
-const STAKING_POOL_ADDRESS: Address = Address.parse('kQA4XlS_SzOpGbkoV0FzJEdsR8rdNf4gu2g_GaJFhCOB3JVt');
+const JETTON_MINTER_ADDRESS: Address = Address.parse('kQBYjZ-AfW8eMDKOfH2OAJr3pnjcl4dKfaGmWs6EaeT8KrbV');
+const STAKING_POOL_ADDRESS: Address = Address.parse('kQAYP1ZExQf0QnFWvldP7xmu9iG0WedvHTnooUDWpHqUTPyS');
 
-const BOOST_REWARDS: number = 33333333333333;
+const BOOST_REWARDS: number = 100000000;
 
 const boostStartTime = timestamp();
 const boostDuration = 60 * 60 * 12 * 365; // half a year
@@ -53,7 +53,7 @@ export async function run(provider: NetworkProvider) {
             boostIndex: nextBoostIndex,
             startTime: boostConfig.startTime,
             endTime: boostConfig.endTime,
-            boostWalletAddress: boost.address,
+            boostWalletAddress: boostWallet.address,
         });
 
         await provider.waitForDeploy(boost.address, 30);

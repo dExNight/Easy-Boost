@@ -2,13 +2,14 @@ import React from "react";
 import { NftItemResponse } from "../../hooks/useTonCenter";
 import PoolValue from "../Utils/Value";
 import { NftItemStorage, useNftItems } from "../../hooks/useNftItems";
-import { formatTimestampToUTC, normalizeNumber, timestamp } from "../../utils";
+import { formatTimestampToUTC, normalizeNumber } from "../../utils";
 import { fromJettonDecimals } from "../../utils";
 import SpinnerElement from "../Utils/Spinner";
 import { Button } from "react-bootstrap";
 import { useTonConnectContext } from "../../contexts/TonConnectContext";
 import { BoostStorage } from "../../hooks/useBoost";
 import { usePoolPositions } from "../../hooks/useStakingPool";
+import { useBoostHelper } from "../../hooks/userBoostHelper";
 
 export interface PositionsProps {
   isOpen: boolean;
@@ -48,8 +49,24 @@ const Positions: React.FC<PositionsProps> = ({
 
   const { itemsStorage, claimBoost } = useNftItems(userPositions);
   const eligibleItems = itemsStorage.filter((item) => isEligible(item));
-  const isClaimOpened: boolean = timestamp() >= boostData.endTime;
+  const { rewards } = useBoostHelper(
+    boostAddress,
+    boostData,
+    decimals,
+    eligibleItems
+  );
+
   const loading = !itemsStorage;
+
+  const getRewardsForNft = (index: number) => {
+    const reward = rewards.find((r) => r.index === index);
+    return reward
+      ? {
+          userRewards: reward.userRewards,
+          claimedRewards: reward.claimedRewards,
+        }
+      : null;
+  };
 
   if (eligibleItems.length === 0) {
     return (
@@ -62,7 +79,6 @@ const Positions: React.FC<PositionsProps> = ({
           <h2 className="w-full flex text-2xl font-bold justify-center">
             No available rewards
           </h2>
-
           <div className="flex justify-end mt-6 gap-2">
             <button
               className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-500"
@@ -114,26 +130,42 @@ const Positions: React.FC<PositionsProps> = ({
                   value_={formatTimestampToUTC(boostData.endTime)}
                 />
                 <PoolValue
-                  key_="To claim"
+                  key_="Total rewards"
                   value_={`${normalizeNumber(
                     availableRewards(item)
                   )} ${symbol}`}
                   keyClass="text-green-500 font-normal"
                   valueClass="text-white font-normal"
                 />
+                <PoolValue
+                  key_="Current rewards"
+                  value_={`${normalizeNumber(
+                    getRewardsForNft(item.index)?.userRewards!
+                  )} ${symbol}`}
+                  keyClass="text-green-500 font-normal"
+                  valueClass="text-white font-normal"
+                />
+                <PoolValue
+                  key_="Claimed rewards"
+                  value_={`${normalizeNumber(
+                    getRewardsForNft(item.index)?.claimedRewards!
+                  )} ${symbol}`}
+                  keyClass="font-normal"
+                  valueClass="text-white font-normal"
+                />
               </div>
-              {isClaimOpened && (
-                <div className="flex flex-col gap-3 justify-center">
-                  <Button
-                    variant="success"
-                    onClick={async () => {
-                      await claimBoost(item.address, boostAddress, sender);
-                    }}
-                  >
-                    Claim
-                  </Button>
-                </div>
-              )}
+
+              <div className="flex flex-col gap-3 justify-center">
+                <Button
+                  variant="success"
+                  onClick={async () => {
+                    await claimBoost(item.address, boostAddress, sender);
+                  }}
+                  disabled={getRewardsForNft(item.index) === null}
+                >
+                  Claim
+                </Button>
+              </div>
             </div>
           ))}
         </div>

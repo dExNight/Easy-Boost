@@ -7,6 +7,7 @@
 global int storage::claimed?;
 global slice storage::boost_address;      ;; address of Boost
 global slice storage::nft_address;      ;; address of the nft (MsgAddress)
+global int storage::user_distributed_rewards;
 
 
 () load_data() impure inline {
@@ -14,6 +15,7 @@ global slice storage::nft_address;      ;; address of the nft (MsgAddress)
     storage::claimed? = ds~load_uint(1);
     storage::boost_address = ds~load_msg_addr();
     storage::nft_address = ds~load_msg_addr();
+    storage::user_distributed_rewards = ds~load_uint(256);
 }
 
 () save_data() impure inline {
@@ -22,6 +24,7 @@ global slice storage::nft_address;      ;; address of the nft (MsgAddress)
             .store_uint(storage::claimed?, 1)
             .store_slice(storage::boost_address)
             .store_slice(storage::nft_address)
+            .store_uint(storage::user_distributed_rewards, 256)
         .end_cell()
     );
 }
@@ -44,10 +47,15 @@ global slice storage::nft_address;      ;; address of the nft (MsgAddress)
 
     if (op == op::claim_boost_rewards) {
         throw_if(exc::already_claimed, storage::claimed?);
-
         slice nft_address = in_msg_body~load_msg_addr();
         slice from_user = in_msg_body~load_msg_addr();
-        int user_locked_value = in_msg_body~load_coins(); 
+        int user_locked_value = in_msg_body~load_coins();
+        int snapshot_tvl = in_msg_body~load_coins();
+        int distributed_rewards = in_msg_body~load_uint(256);
+        int is_finished = in_msg_body~load_int(1);
+
+        int farmed_amount = distributed_rewards - storage::user_distributed_rewards;
+        int user_rewards = muldiv(farmed_amount, user_locked_value, (snapshot_tvl * distributed_rewards_divider));
 
         ;; process claim
         cell msg_body = begin_cell()
@@ -55,7 +63,7 @@ global slice storage::nft_address;      ;; address of the nft (MsgAddress)
                 .store_uint(query_id, 64)
                 .store_slice(nft_address)
                 .store_slice(from_user)
-                .store_coins(user_locked_value)
+                .store_coins(user_rewards)
             .end_cell();
             
         builder msg = begin_cell()
@@ -67,7 +75,8 @@ global slice storage::nft_address;      ;; address of the nft (MsgAddress)
                         .store_ref(msg_body);
 
         send_raw_message(msg.end_cell(), mode::carry_remaining_gas);
-        storage::claimed? = 1;
+        storage::claimed? = is_finished ? 1 : 0;
+        storage::user_distributed_rewards = distributed_rewards;
         save_data();
         return ();
     }
@@ -75,7 +84,7 @@ global slice storage::nft_address;      ;; address of the nft (MsgAddress)
     throw(0xffff);
 }
 
-(int, slice, slice) get_helper_data() method_id {
+(int, slice, slice, int) get_helper_data() method_id {
     load_data();
-    return (storage::claimed?, storage::boost_address, storage::nft_address);
+    return (storage::claimed?, storage::boost_address, storage::nft_address, storage::user_distributed_rewards);
 }
