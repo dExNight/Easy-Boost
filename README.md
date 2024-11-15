@@ -1,20 +1,39 @@
-# Fixed APY Staking System with Boost Mechanisms
+# Easy Boost: Enhanced Staking System with Dynamic Reward Mechanisms
 
 ## Overview
-`Easy Boost` is extension for JVault staking smart contract that allows users to boost their rewards temporarily by participating in "boost" events. Boosts offer additional token rewards for a limited period, encouraging users to stake tokens for a long time
 
-## Boost Mechanics and Workflow
+Easy Boost is an extension for the JVault staking smart contract that introduces a "boost" mechanism for additional token rewards. The project allows any token holder to create temporary boost campaigns, incentivizing long-term staking while increasing the token holder base.
 
-1. **Boost Initialization**: A boost is created by user or token owner. Boost creator specifies the boost duration, initializes it and deposits token rewards. Only users that had active staking positions before creation of the boost are eligible to claim boost rewards
+## Key Features
 
-2. **Boost Expiration**: When the specified end time elapses, the boost concludes, and rewards become available to claim for eligible users
+- Flexible boost system supporting any token
+- Partial claim of boost rewards
+- Fair reward distribution
+- Simple web interface for system interaction
 
-3. **User Claiming Process**: Eligible users sends claim request to receive boost rewards:
-   - **Claim Verification**: The boost validates the claim, then notifies a `boost_helper` contract to ensure no duplicate claims are made by a single user
-   - **Reward Distribution**: Upon verification, the boost smart contract processes the claim and sends the payment to user
+## System Benefits
 
----
+1. **For Projects**:
+- Increased token holder base
+- Long-term staking incentivization
 
-## System Rules and Constraints
+2. **For Users**:
+- Additional staking rewards
+- Transparent distribution system
 
-- **NFT withdrawal restriction**: Users who withdraw their staked NFT before the boost ends are ineligible for boost rewards. However, if they withdraw tokens from the main pool, they remain eligible for boost rewards if their withdrawal happened after the boost end date. The `withdrawed_at` parameter in each `nft_item` ensures claims are valid only if the NFT was held through the entire boost period
+## Constraints
+
+- Only users with active pool positions before boost creation are eligible
+- NFT that is withdrawed before boost completion becomes ineligible
+
+### Reward Claiming
+
+- Supports partial claims before boost completion
+- Rewards calculated proportionally to participation time
+
+## Web Interface
+
+Available [here](https://dexnight.github.io/Easy-Boost/)
+
+- Pool and boost navigation
+- Statistics and rewards visualization
