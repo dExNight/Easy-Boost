@@ -7,6 +7,7 @@ import { withRetry } from "../utils";
 import { JettonMaster } from "@ton/ton";
 import { JettonWallet } from "../contracts/JettonWallet";
 import { buildAddBoostRewardsPayload } from "../contracts/payload";
+import { boostStorageService } from "../utils/boostStorage";
 
 export type BoostStorage = {
   init: boolean;
@@ -104,18 +105,27 @@ export function useBoostStorage(
         !client ||
         !sender.address
       ) {
-        console.error("Staking pool contract is not initialized");
+        console.error("Boost contract is not initialized");
         return;
       }
       try {
-        console.log(boostStorage.boostWalletAddress.toString());
-        const { stack } = await client.runMethod(
-          boostStorage.boostWalletAddress!,
-          "get_wallet_data"
+        const jettonAddress = boostStorageService.getJettonAddress(
+          boostAddress.toString()
         );
-        stack.readBigNumber();
-        stack.readAddress();
-        const jetton_master_address = stack.readAddress();
+
+        let jetton_master_address: Address | null = null;
+
+        if (!jettonAddress) {
+          const { stack } = await client.runMethod(
+            boostStorage.boostWalletAddress!,
+            "get_wallet_data"
+          );
+          stack.readBigNumber();
+          stack.readAddress();
+          jetton_master_address = stack.readAddress();
+        } else {
+          jetton_master_address = Address.parse(jettonAddress);
+        }
 
         const jettonMinter = client.open(
           JettonMaster.create(jetton_master_address)

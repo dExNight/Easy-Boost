@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Address, Sender } from "@ton/core";
 import { useJettonWallet } from "../../hooks/useStakingPool";
 import { isValidAddress } from "../../utils";
+import { boostStorageService } from "../../utils/boostStorage";
 
 export interface CreatePoolProps {
   isOpen: boolean;
@@ -77,16 +78,17 @@ const CreateBoost: React.FC<CreatePoolProps> = ({
 
     if (validateForm()) {
       try {
-        console.log(
-          "Creating boost",
-          formData.boostDuration,
-          nextBoostJettonWallet
-        );
         await createBoost(
           Number(formData.boostDuration),
           nextBoostJettonWallet,
           sender
         );
+
+        boostStorageService.saveBoostJettonMapping(
+          nextBoostAddress.toString(),
+          formData.jettonAddress
+        );
+
         alert(`Boost created successfully`);
         setIsModalOpen(false);
       } catch (e: any) {
