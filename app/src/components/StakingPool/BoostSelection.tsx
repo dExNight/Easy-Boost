@@ -49,7 +49,7 @@ const BoostSelectionModal: React.FC<BoostSelectionModalProps> = ({
               <div
                 key={index}
                 className={`bg-telegram-gray-lighter p-4 rounded-lg cursor-pointer transition-colors ${
-                  selectedBoost === index ? "bg-telegram-blue-dark" : "hover:bg-gray-100"
+                  selectedBoost === index ? "bg-gray-300" : "hover:bg-gray-100"
                 }`}
                 onClick={() => handleSelectBoost(index)}
               >
