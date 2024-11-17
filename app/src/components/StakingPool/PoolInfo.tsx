@@ -68,7 +68,7 @@ const PoolInfo: React.FC<PoolInfoProps> = ({
     <div className="flex flex-col items-center justify-center w-full max-w-2xl mx-auto my-4 px-4 gap-4">
       <h2 className="text-xl md:text-2xl font-bold text-center">Staking Pool</h2>
       <p className="text-sm md:text-lg text-center break-all">Address: {address}</p>
-      <div className="flex flex-row items-center bg-gray-800 p-4 md:p-6 rounded-lg shadow-md w-full overflow-x-auto">
+      <div className="flex flex-row items-center info-block">
         <div className="w-[50%] h-full">
           <p className="text-lg font-bold mb-1">Jetton Information</p>
           <PoolValue key_="Name" value_={poolJetton.jetton_content.name} />
@@ -85,7 +85,7 @@ const PoolInfo: React.FC<PoolInfoProps> = ({
           />
         </div>
       </div>
-      <div className="bg-gray-800 p-4 md:p-6 rounded-lg shadow-md w-full overflow-x-auto">
+      <div className="info-block bg-transparent border-1 border-telegram-blue">
         <div className="space-y-2">
           <ProgressBar
             currentSpeed={poolData.farmingSpeed}
@@ -108,7 +108,7 @@ const PoolInfo: React.FC<PoolInfoProps> = ({
           />
         </div>
       </div>
-      <div className="bg-gray-800 p-4 md:p-6 rounded-lg shadow-md w-full overflow-x-auto">
+      <div className="info-block bg-transparent border-1 border-telegram-blue">
         <div className="space-y-2">
           <PoolValue
             key_="Time before end"
@@ -124,7 +124,7 @@ const PoolInfo: React.FC<PoolInfoProps> = ({
           />
         </div>
       </div>
-      <div className="bg-gray-800 p-4 md:p-6 rounded-lg shadow-md w-full overflow-x-auto">
+      <div className="info-block bg-transparent border-1 border-telegram-blue">
         <div className="space-y-2">
           <PoolValue key_="Total stakers" value_={poolData.nextItemIndex} />
           <PoolValue

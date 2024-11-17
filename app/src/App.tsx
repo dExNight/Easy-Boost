@@ -40,7 +40,7 @@ const router = createHashRouter([
 
 function App() {
   return (
-    <div className="w-full h-full text-white overflow-auto scrollbar-modern">
+    <div className="w-full h-full text-black overflow-auto scrollbar-modern">
       <RouterProvider router={router} />
     </div>
   );

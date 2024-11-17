@@ -8,9 +8,15 @@
   }
 }
 
+@layer components {
+  .info-block {
+    @apply bg-gray-100 hover:bg-gray-200 duration-500 p-4 md:p-6 rounded-lg shadow-md w-full overflow-x-auto;
+  }
+}
+
 body {
   display: flex;
-  background-color: rgb(20 20 20 / 1);
+  background-color: "bg-telegram-gray-lighter";
   /* min-height: 100vh; */
 }
 

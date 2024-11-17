@@ -55,7 +55,7 @@ const BoostInfo: React.FC<BoostInfoProps> = ({
           Address: {address.toString({ testOnly: !isMainnet })}
         </p>
 
-        <div className="bg-gray-800 p-6 rounded-lg shadow-md w-full max-w-2xl mx-auto overflow-auto">
+        <div className="info-block max-w-2xl mx-auto bg-transparent border-1 border-telegram-blue">
           <div className="space-y-2">
             <PoolValue
               key_="Time before end"
@@ -71,7 +71,7 @@ const BoostInfo: React.FC<BoostInfoProps> = ({
             />
           </div>
         </div>
-        <div className="bg-gray-800 p-6 rounded-lg shadow-md w-full max-w-2xl mx-auto overflow-auto">
+        <div className="info-block max-w-2xl mx-auto bg-transparent border-1 border-telegram-blue">
           <div className="space-y-2">
             <PoolValue
               key_="Eligible stakers"
@@ -117,7 +117,7 @@ const BoostInfo: React.FC<BoostInfoProps> = ({
       <p className="text-lg text-center">
         Address: {address.toString({ testOnly: !isMainnet })}
       </p>
-      <div className="flex flex-row items-center bg-gray-800 p-6 rounded-lg shadow-md w-full max-w-2xl mx-auto overflow-auto">
+      <div className="flex flex-row items-center info-block max-w-2xl mx-auto">
         <div className="w-[50%] h-full">
           <p className="text-lg font-bold mb-1">Jetton Information</p>
           <PoolValue key_="Name" value_={boostJetton?.jetton_content.name} />
@@ -137,7 +137,7 @@ const BoostInfo: React.FC<BoostInfoProps> = ({
           />
         </div>
       </div>
-      <div className="bg-gray-800 p-6 rounded-lg shadow-md w-full max-w-2xl mx-auto overflow-auto">
+      <div className="info-block max-w-2xl mx-auto bg-transparent border-1 border-telegram-blue">
         <div className="space-y-2">
           <ProgressBar
             currentSpeed={boostData.farmingSpeed}
@@ -148,7 +148,7 @@ const BoostInfo: React.FC<BoostInfoProps> = ({
           />
         </div>
       </div>
-      <div className="bg-gray-800 p-6 rounded-lg shadow-md w-full max-w-2xl mx-auto overflow-auto">
+      <div className="info-block max-w-2xl mx-auto bg-transparent border-1 border-telegram-blue">
         <div className="space-y-2">
           <PoolValue
             key_="Time before end"
@@ -164,7 +164,7 @@ const BoostInfo: React.FC<BoostInfoProps> = ({
           />
         </div>
       </div>
-      <div className="bg-gray-800 p-6 rounded-lg shadow-md w-full max-w-2xl mx-auto overflow-auto">
+      <div className="info-block max-w-2xl mx-auto bg-transparent border-1 border-telegram-blue">
         <div className="space-y-2">
           <PoolValue
             key_="Eligible stakers"
@@ -199,6 +199,8 @@ const BoostInfo: React.FC<BoostInfoProps> = ({
           </Button>
         </div>
       )}
+
+      {!connected && <p>Connect wallet to top-up / view rewards</p>}
 
       <Positions
         isOpen={isModalOpen}

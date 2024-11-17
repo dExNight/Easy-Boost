@@ -1,12 +1,12 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { isValidAddress } from "../../utils";
 
-const SearchBar: React.FC = () => {
+const SearchBar = () => {
   const [address, setAddress] = useState("");
   const navigate = useNavigate();
 
-  const handleKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyUp = (event: any) => {
     if (event.key === "Enter") {
       if (isValidAddress(address)) {
         setAddress("");
@@ -24,7 +24,7 @@ const SearchBar: React.FC = () => {
         value={address}
         onChange={(e) => setAddress(e.target.value)}
         onKeyUp={handleKeyUp}
-        className="rounded-3xl bg-gray-800 w-full p-3"
+        className="rounded-3xl bg-gray-100 w-full p-3 text-gray-900 placeholder-gray-500 outline-none focus:ring-1 focus:ring-telegram-blue border border-gray-200 focus:border-telegram-blue"
         placeholder="Enter address"
       />
     </div>

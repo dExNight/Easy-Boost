@@ -34,11 +34,11 @@ const BoostSelectionModal: React.FC<BoostSelectionModalProps> = ({
 
   return (
     <div
-      className={`fixed scrollbar-modern bg-black bg-opacity-50 backdrop-blur-[10px] inset-0 flex items-center justify-center z-50 ${
+      className={`fixed scrollbar-modern bg-telegram-gray-lighter bg-opacity-50 backdrop-blur-[10px] inset-0 flex items-center justify-center z-50 ${
         isOpen ? "" : "hidden"
       }`}
     >
-      <div className="bg-gray-800 max-h-[80%] overflow-auto scrollbar-modern p-6 rounded-lg shadow-md w-full max-w-md">
+      <div className="border-1 border-telegram-blue bg-white max-h-[80%] overflow-auto scrollbar-modern p-6 rounded-lg shadow-md w-full max-w-md">
         <h2 className="text-2xl font-bold mb-4">Select Boost</h2>
         {indexes.length === 0 && (
           <p className="text-gray-400">No boosts available</p>
@@ -48,8 +48,8 @@ const BoostSelectionModal: React.FC<BoostSelectionModalProps> = ({
             {indexes.map((index) => (
               <div
                 key={index}
-                className={`bg-gray-700 p-4 rounded-lg cursor-pointer transition-colors ${
-                  selectedBoost === index ? "bg-gray-900" : "hover:bg-gray-600"
+                className={`bg-telegram-gray-lighter p-4 rounded-lg cursor-pointer transition-colors ${
+                  selectedBoost === index ? "bg-telegram-blue-dark" : "hover:bg-gray-100"
                 }`}
                 onClick={() => handleSelectBoost(index)}
               >

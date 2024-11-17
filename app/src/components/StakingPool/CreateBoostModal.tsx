@@ -119,25 +119,25 @@ const CreateBoost: React.FC<CreatePoolProps> = ({
 
   return (
     <div
-      className={`fixed bg-black bg-opacity-50 backdrop-blur-sm inset-0 flex items-center justify-center z-50 ${
+      className={`fixed scrollbar-modern bg-telegram-gray-lighter bg-opacity-50 backdrop-blur-[10px] inset-0 flex items-center justify-center z-50 ${
         isOpen ? "" : "hidden"
       }`}
     >
-      <div className="bg-gray-800 flex flex-col gap-4 p-6 rounded-lg shadow-md w-full max-w-lg">
-        <h2 className="text-2xl font-bold text-center text-white">
+      <div className="border border-telegram-blue bg-white max-h-[80%] overflow-auto scrollbar-modern p-6 rounded-lg shadow-md w-full max-w-md">
+        <h2 className="text-2xl font-bold mb-6 text-center">
           Complete boost information
         </h2>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <div className="flex flex-col gap-2">
-            <label className="text-white">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-2">
+            <label className="block text-lg font-medium">
               Boost Duration (days)
               <input
                 type="text"
                 name="boostDuration"
                 value={formData.boostDuration}
                 onChange={handleChange}
-                className="w-full mt-1 px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:border-blue-500"
+                className="w-full mt-1 p-3 bg-telegram-gray-lighter rounded-lg border border-transparent focus:border-telegram-blue focus:ring-1 focus:ring-telegram-blue outline-none transition-colors"
                 placeholder="Enter boost duration"
               />
             </label>
@@ -146,15 +146,15 @@ const CreateBoost: React.FC<CreatePoolProps> = ({
             )}
           </div>
 
-          <div className="flex flex-col gap-2">
-            <label className="text-white">
+          <div className="space-y-2">
+            <label className="block text-lg font-medium">
               Jetton Address
               <input
                 type="text"
                 name="jettonAddress"
                 value={formData.jettonAddress}
                 onChange={handleChange}
-                className="w-full mt-1 px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:border-blue-500"
+                className="w-full mt-1 p-3 bg-telegram-gray-lighter rounded-lg border border-transparent focus:border-telegram-blue focus:ring-1 focus:ring-telegram-blue outline-none transition-colors"
                 placeholder="Enter jetton address"
               />
             </label>
@@ -163,17 +163,27 @@ const CreateBoost: React.FC<CreatePoolProps> = ({
             )}
           </div>
 
-          <div className="flex justify-end gap-3 mt-6">
+          {!nextBoostJettonWallet && formData.jettonAddress && (
+            <p className="text-yellow-600 text-sm">
+              Searching for jetton wallet...
+            </p>
+          )}
+
+          <div className="flex justify-end gap-3 pt-4">
             <button
               type="button"
               onClick={() => setIsModalOpen(false)}
-              className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-500 focus:outline-none"
+              className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-500 transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-500 focus:outline-none"
+              className={`px-4 py-2 text-white rounded transition-colors ${
+                !nextBoostJettonWallet
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-telegram-blue hover:bg-telegram-blue-dark"
+              }`}
               disabled={!nextBoostJettonWallet}
             >
               Create Boost

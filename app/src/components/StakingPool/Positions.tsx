@@ -10,7 +10,6 @@ import {
 } from "../../utils";
 import { fromJettonDecimals } from "../../utils";
 import SpinnerElement from "../Utils/Spinner";
-import { Button } from "react-bootstrap";
 import { useTonConnectContext } from "../../contexts/TonConnectContext";
 import { PoolStorage } from "../../hooks/useStakingPool";
 import {
@@ -62,79 +61,87 @@ const Positions: React.FC<PositionsProps> = ({
 
   return (
     <div
-      className={`fixed bg-black bg-opacity-50 backdrop-blur-[10px] inset-0 flex items-center justify-center z-50 ${
+      className={`fixed scrollbar-modern bg-telegram-gray-lighter bg-opacity-50 backdrop-blur-[10px] inset-0 flex items-center justify-center z-50 ${
         isOpen ? "" : "hidden"
       }`}
     >
-      <div className="bg-gray-800 flex flex-col gap-4 p-6 rounded-lg shadow-md w-full max-w-[80%] max-h-[80%] overflow-auto scrollbar-modern">
-        <h2 className="text-2xl font-bold">Active positions</h2>
+      <div className="border border-telegram-blue bg-white max-h-[80%] overflow-auto scrollbar-modern p-6 rounded-lg shadow-md w-full max-w-4xl">
+        <h2 className="text-2xl font-bold mb-4">Active positions</h2>
 
-        <PoolValue key_="Total" value_={nfts.length} />
+        <div className="mb-4">
+          <PoolValue
+            key_="Total Positions"
+            value_={nfts.length}
+            valueClass="font-semibold text-telegram-blue"
+          />
+        </div>
 
-        {loading && (
-          <div className="flex justify-center">
+        {loading ? (
+          <div className="flex justify-center my-4">
             <SpinnerElement sm />
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {itemsStorage.map((item) => (
+              <div
+                key={item.address}
+                className="bg-telegram-gray-lighter p-4 rounded-lg flex flex-col md:flex-row md:items-center gap-4"
+              >
+                <div className="flex-grow space-y-2">
+                  <PoolValue
+                    key_="Locked Value"
+                    value_={`${fromJettonDecimals(
+                      item.lockedValue,
+                      decimals
+                    )} ${symbol}`}
+                    valueClass="font-medium"
+                  />
+                  <PoolValue
+                    key_="Start Time"
+                    value_={formatTimestampToUTC(item.startTime)}
+                  />
+                  <PoolValue
+                    key_="Unlock Time"
+                    value_={formatTimestampToUTC(item.unlockTime)}
+                  />
+                  <PoolValue
+                    key_="Available to claim"
+                    value_={`${normalizeNumber(
+                      fromJettonDecimals(availableRewards(item), decimals)
+                    )} ${symbol}`}
+                    keyClass="text-green-500 font-medium"
+                    valueClass="text-green-500 font-medium"
+                  />
+                </div>
+
+                <div className="flex flex-row md:flex-col justify-end gap-3">
+                  <button
+                    className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-500 transition-colors flex-1 md:flex-none"
+                    onClick={async () => {
+                      await claim(item.address, sender);
+                    }}
+                  >
+                    Claim
+                  </button>
+                  {isWithdrawOpen(item) && (
+                    <button
+                      className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-500 transition-colors flex-1 md:flex-none"
+                      onClick={async () => {
+                        await withdraw(item.address, sender);
+                      }}
+                    >
+                      Withdraw
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
           </div>
         )}
 
-        <div className="flex flex-col gap-4">
-          {itemsStorage.map((item) => (
-            <div
-              key={item.address}
-              className="flex flex-row items-center bg-gray-700 p-4 rounded-lg"
-            >
-              <div className="w-full">
-                <PoolValue
-                  key_="Locked Value"
-                  value_={`${fromJettonDecimals(
-                    item.lockedValue,
-                    decimals
-                  )} ${symbol}`}
-                />
-                <PoolValue
-                  key_="Start Time"
-                  value_={formatTimestampToUTC(item.startTime)}
-                />
-                <PoolValue
-                  key_="Unlock Time"
-                  value_={formatTimestampToUTC(item.unlockTime)}
-                />
-                <PoolValue
-                  key_="Available to claim"
-                  value_={`${normalizeNumber(
-                    fromJettonDecimals(availableRewards(item), decimals)
-                  )} ${symbol}`}
-                  keyClass="text-green-500 font-normal"
-                  valueClass="text-white font-normal"
-                />
-              </div>
-              <div className="flex flex-col gap-3 justify-center">
-                <Button
-                  variant="success"
-                  onClick={async () => {
-                    await claim(item.address, sender);
-                  }}
-                >
-                  Claim
-                </Button>
-                {isWithdrawOpen(item) && (
-                  <Button
-                    variant="danger"
-                    onClick={async () => {
-                      await withdraw(item.address, sender);
-                    }}
-                  >
-                    Withdraw
-                  </Button>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="flex justify-end mt-6 gap-2">
+        <div className="flex justify-end mt-6">
           <button
-            className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-500"
+            className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-500 transition-colors"
             onClick={() => setIsModalOpen(false)}
           >
             Close

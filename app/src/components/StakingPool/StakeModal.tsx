@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { Form } from "react-bootstrap";
 import { JettonMaster } from "../../hooks/useTonCenter";
 import { useTonConnectContext } from "../../contexts/TonConnectContext";
 import { Sender } from "@ton/core";
@@ -39,43 +38,60 @@ const StakeModal: React.FC<StakeModalProps> = ({
 
   return (
     <div
-      className={`fixed bg-black bg-opacity-50 backdrop-blur-[10px] inset-0 flex items-center justify-center z-50 ${
+      className={`fixed scrollbar-modern bg-telegram-gray-lighter bg-opacity-50 backdrop-blur-[10px] inset-0 flex items-center justify-center z-50 ${
         isOpen ? "" : "hidden"
       }`}
     >
-      <div className="bg-gray-800 p-6 rounded-lg shadow-md w-full max-w-sm md:max-w-xl flex flex-col items-center justify-center">
+      <div className="border border-telegram-blue bg-white max-h-[80%] overflow-auto scrollbar-modern p-6 rounded-lg shadow-md w-full max-w-md">
         <h2 className="text-2xl font-bold mb-4">Stake Tokens</h2>
-        <Form>
-          <Form.Group className="mb-3" controlId="stakeAmount">
-            <Form.Label>
+        
+        <div className="space-y-4">
+          <div className="flex flex-col space-y-2">
+            <label htmlFor="stakeAmount" className="text-lg font-medium">
               Stake Amount {poolJetton.jetton_content.symbol}
-            </Form.Label>
-            <Form.Control
+            </label>
+            <input
+              id="stakeAmount"
               type="number"
               value={stakeAmount}
               onChange={(e) => setStakeAmount(parseFloat(e.target.value))}
-              className="bg-gray-700 focus:bg-gray-700 text-white border-gray-600 focus:border-blue-600 focus:ring-blue-600"
+              className="w-full p-3 bg-telegram-gray-lighter rounded-lg border border-transparent focus:border-telegram-blue focus:ring-1 focus:ring-telegram-blue outline-none transition-colors"
+              min={minDeposit}
+              step="any"
             />
-          </Form.Group>
-          <Form.Group className="mb-3" controlId="stakeDuration">
-            <Form.Label>Stake Duration (seconds)</Form.Label>
-            <Form.Control
+          </div>
+
+          <div className="flex flex-col space-y-2">
+            <label htmlFor="stakeDuration" className="text-lg font-medium">
+              Stake Duration (seconds)
+            </label>
+            <input
+              id="stakeDuration"
               type="number"
               value={stakeDuration}
               onChange={(e) => setStakeDuration(parseInt(e.target.value))}
-              className="bg-gray-700 focus:bg-gray-700 text-white border-gray-600 focus:border-blue-600 focus:ring-blue-600"
+              className="w-full p-3 bg-telegram-gray-lighter rounded-lg border border-transparent focus:border-telegram-blue focus:ring-1 focus:ring-telegram-blue outline-none transition-colors"
+              min={poolData.minLockPeriod}
             />
-          </Form.Group>
-        </Form>
+          </div>
+
+          <div className="mt-2 text-sm text-gray-500">
+            Minimum deposit: {minDeposit} {poolJetton.jetton_content.symbol}
+          </div>
+          <div className="text-sm text-gray-500">
+            Minimum lock period: {poolData.minLockPeriod} seconds
+          </div>
+        </div>
+
         <div className="flex justify-end mt-6 gap-2">
           <button
-            className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-500"
+            className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-500 transition-colors"
             onClick={() => setIsModalOpen(false)}
           >
             Close
           </button>
           <button
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500"
+            className="px-4 py-2 bg-telegram-blue text-white rounded hover:bg-telegram-blue-dark transition-colors"
             onClick={handleStake}
           >
             Stake
