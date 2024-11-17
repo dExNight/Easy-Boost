@@ -38,7 +38,7 @@ const BoostSelectionModal: React.FC<BoostSelectionModalProps> = ({
         isOpen ? "" : "hidden"
       }`}
     >
-      <div className="border-1 border-telegram-blue bg-white max-h-[80%] overflow-auto scrollbar-modern p-6 rounded-lg shadow-md w-full max-w-md">
+      <div className="border border-telegram-blue bg-white max-h-[80%] overflow-auto scrollbar-modern p-6 rounded-lg shadow-md w-full max-w-md">
         <h2 className="text-2xl font-bold mb-4">Select Boost</h2>
         {indexes.length === 0 && (
           <p className="text-gray-400">No boosts available</p>
@@ -48,8 +48,10 @@ const BoostSelectionModal: React.FC<BoostSelectionModalProps> = ({
             {indexes.map((index) => (
               <div
                 key={index}
-                className={`bg-telegram-gray-lighter p-4 rounded-lg cursor-pointer transition-colors ${
-                  selectedBoost === index ? "bg-gray-300" : "hover:bg-gray-100"
+                className={`p-4 rounded-lg cursor-pointer transition-all duration-200 ${
+                  selectedBoost === index
+                    ? "bg-telegram-blue text-white shadow-lg transform scale-[1.02]"
+                    : "bg-telegram-gray-lighter hover:bg-gray-200"
                 }`}
                 onClick={() => handleSelectBoost(index)}
               >
@@ -60,14 +62,14 @@ const BoostSelectionModal: React.FC<BoostSelectionModalProps> = ({
         )}
         <div className="flex justify-end mt-6 gap-2">
           <button
-            className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-500"
+            className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-500 transition-colors"
             onClick={onClose}
           >
             Close
           </button>
           {indexes.length > 0 && (
             <button
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500"
+              className="px-4 py-2 bg-telegram-blue text-white rounded hover:bg-telegram-blue-dark transition-colors"
               onClick={handleConfirmBoost}
             >
               Navigate
